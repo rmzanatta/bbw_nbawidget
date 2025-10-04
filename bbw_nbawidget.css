@@ -1,0 +1,907 @@
+/*** TEST ONLY TO MIMIC BASELINE BUMS */
+body {
+	background: #ABA9AA; /* BB Light */
+	/*background: black; /* BB Dark */
+}
+/*** TEST ONLY TO MIMIC BASELINE BUMS */
+
+/*******************************************************************/
+/* Global Widget Styles */
+/*******************************************************************/
+
+
+/*** Mimic Baseline bums fonts ***/
+.bbw-nbawidget-container {
+	font-family: 'Segoe UI','Helvetica Neue',Helvetica,Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans',sans-serif;
+}
+.bbw-nbawidget-container select {
+	font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, sans-serif;
+	color: var(--bbw-color-param-text);
+	background: var(--bbw-color-param-bg);
+	border-color: var(--bbw-color-param-border);
+	flex: 1;
+	padding: 5px;
+	border-radius: 12px;
+	border-width: 1px;
+	border-style: solid;
+	cursor: pointer;
+}
+.bbw-nbawidget-container input {
+	font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, sans-serif;
+	color: var(--bbw-color-param-text);
+	background: var(--bbw-color-param-bg);
+	border-color: var(--bbw-color-param-border);
+	flex: 1;
+	padding: 5px;
+	border-radius: 12px;
+	border-width: 1px;
+	border-style: solid;
+	cursor: pointer;
+	text-align:right;
+}
+
+/*** Widget Container Styles */
+.bbw-nbawidget {
+	color: var(--bbw-color-widget-text);
+	background: var(--bbw-color-widget-bg);
+	max-width:350px;
+	border-radius:10px;
+}	
+
+/*** Generic Group Header */
+.bbw-nbawidget-group-header {
+	background: var(--bbw-color-groupheader-bg);
+	color: var(--bbw-color-groupheader-text);
+	border-top: 1px solid var(--bbw-color-groupheader-border);
+	border-bottom: 1px solid var(--bbw-color-groupheader-border);
+	text-align: center;
+	font-weight: bold;
+	border-radius:10px;
+	padding-bottom:5px;
+	padding-top:5px;
+	margin-top:8px;
+	margin-bottom:8px;
+	font-size:0.70em;
+	text-transform:uppercase;
+	letter-spacing: 2px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/*** Generic No Data Box */
+.bbw-nbawidget-nodata {
+	color: var(--bbw-color-nodata-text);
+	border-color: var(--bbw-color-nodata-border);
+	font-size: 0.85em;
+	margin: 10px;
+	text-align: center;
+	border-radius: 10px;
+	border-style: dashed;
+	border-width: 2px;
+	padding:20px;
+}
+
+/*******************************************************************/
+/* Header Styles */
+/*******************************************************************/
+
+/* Main Header Container */
+.bbw-nbawidget-header-container {
+    color: var(--bbw-color-header-text);
+    background: var(--bbw-color-header-bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 4px;
+}
+
+/* Main Header Settings Container */
+.bbw-nbawidget-header-buttongroup {
+    cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap:6px;
+	margin-right:6px;
+}
+
+/* Main Header Settings Icon Style */
+.bbw-nbawidget-header-button svg {
+	fill:var(--bbw-color-header-icon-fill);
+	stroke-linecap:round;
+	stroke-linejoin:round;
+	width: 15px;
+	height: 15px;
+    transition: all 0.2s;
+}
+
+/* Main Header Settings Icon Hover */
+.bbw-nbawidget-header-button svg:hover {
+	fill:var(--bbw-color-header-icon-hover-fill);
+    transform: rotate(45deg) scale(1.15);
+}
+
+/* Header Logo Container */
+.bbw-nbawidget-header-logo {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* Header Logo Image */
+.bbw-nbawidget-header-logo-img {
+	width: 36px;
+	height:36px;
+	transition: transform 0.2s ease;
+}
+
+/* Header Logo Hover Effect */
+.bbw-nbawidget-header-logo:hover .bbw-nbawidget-header-logo-img {
+    transform: scale(1.15);
+}
+
+/*******************************************************************/
+/* Settings Dialog Styles */
+/*******************************************************************/
+/* Settings DIV for non-dialog */
+.bbw-nbawidget-settings-container {
+	padding:10px;
+	padding-top:3px;
+	max-height:500px;
+	overflow-y:auto;
+	animation: fadeSlideIn 0.4s ease forwards;
+}
+
+
+
+/* Settings - Row of Setting options */
+.bbw-nbawidget-settings-row {
+	font-size:0.8em;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+/* Settings - Label */
+.bbw-nbawidget-settings-label {
+    justify-self: start;
+}
+
+/* Settings - Separator */
+.bbw-nbawidget-settings-separator {
+    justify-self: center;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.bbw-nbawidget-settings-value input {
+	color: var(--bbw-color-param-text);
+	background: var(--bbw-color-param-bg);
+	border-color: var(--bbw-color-param-border);
+}
+
+/* Toggle Switch */
+.bbw-nbawidget-settings-switch {
+	position: relative;
+	display: inline-block;
+	width: 44px;
+	height: 24px;
+	justify-self:end;
+}
+.bbw-nbawidget-settings-switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+.bbw-nbawidget-settings-slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: var(--bbw-color-btn-off-bg);
+	transition: 0.3s;
+	border-radius: 24px;
+}
+.bbw-nbawidget-settings-slider:before {
+	position: absolute;
+	content: "";
+	height: 18px;
+	width: 18px;
+	left: 3px;
+	bottom: 3px;
+	background-color: var(--bbw-color-btn-on-text);
+	transition: 0.3s;
+	border-radius: 50%;
+}
+.bbw-nbawidget-settings-switch input:checked + .bbw-nbawidget-settings-slider {
+	background-color: var(--bbw-color-btn-on-bg);
+}
+.bbw-nbawidget-settings-switch input:checked + .bbw-nbawidget-settings-slider:before {
+	transform: translateX(20px);
+}
+
+/* Footer */
+.bbw-nbawidget-settings-footer {
+	display: flex;
+	gap: 5px;
+	padding-top: 10px;
+	justify-content: flex-end;
+	border-top-style: solid;
+	border-top-width: 1px;
+	border-top-color: var(--bbw-color-setting-footer-border);
+}
+
+/* Buttons */
+.bbw-nbawidget-settings-button {
+    padding: 7px 12px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    cursor: pointer;
+    border-width: 1px;
+    border-style: solid;
+}
+.bbw-nbawidget-settings-button-save {
+    background: var(--bbw-color-btn-on-bg);
+    color: var(--bbw-color-btn-on-text);
+    border-style:none;
+	transition:all 0.3s ease;
+}
+.bbw-nbawidget-settings-button-save:hover {
+    background: var(--bbw-color-btn-on-hover-bg);
+}
+
+/*******************************************************************/
+/* Season Parameters */
+/*******************************************************************/
+/* Param Group - Properly Align each parameter */
+.bbw-nbawidget-param-seasongroup {
+	background:var(--bbw-color-paramgroup-bg);
+	display: flex;
+	gap:6px;
+	padding:10px 15px;
+	backdrop-filter: blur(5px);
+}
+
+/* Parameter - Style the parameter drop downs */
+.bbw-nbawidget-param-seasongroup select {
+	font-size: 0.75em;
+	font-weight: bold;
+}
+.bbw-nbawidget-param-seasongroup select:focus {
+	outline: none;
+}
+
+/*******************************************************************/
+/* Tab Styles */
+/*******************************************************************/
+/*** Tab Group Style ***/
+.bbw-nbawidget-tabgroup {
+	background: var(--bbw-color-tab-group-bg);
+	border-color: var(--bbw-color-tab-group-border);
+	display: flex;
+	border-style:solid;
+	border-width:1px 0px;
+	overflow:hidden;
+	transition: all 0.25s ease;
+	border-bottom-width:2px;
+	gap:5px;
+}
+
+/*** Default Tab Style (Inactive) */
+.bbw-nbawidget-tab {
+	color: var(--bbw-color-tab-inactive-text);
+	font-size:0.9em;
+	flex: 1;
+	text-align: center;
+	padding: 8px;
+	cursor: pointer;
+	font-weight: normal;
+	/*margin-top:3px;*/
+	/*border-top-left-radius:8px;*/
+	/*border-top-right-radius:8px;*/
+	transition:all 0.5s ease;
+}
+
+/*** Active Tab Style */
+.bbw-nbawidget-tab.active {
+	color: var(--bbw-color-tab-active-text);
+	background: var(--bbw-color-tab-active-bg);
+	font-weight: bold;
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
+	border-bottom-color: var(--bbw-color-tab-active-border);
+}
+
+/*** Tab Hovering Effect */
+.bbw-nbawidget-tab:hover {
+	background: var(--bbw-color-tab-inactive-hover-bg);
+}
+
+/********************************************************************/
+/* Schedule Styles */
+/********************************************************************/
+/*** Schedule Container */
+.bbw-nbawidget-sch-container {
+	background:var(--bbw-color-sch-bg);
+	padding:10px;
+	padding-top:3px;
+	max-height: 500px;
+	overflow-y: auto;
+	
+	/* these have to be here to match the full widget container */
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+/*** Game Entry Style */
+.bbw-nbawidget-sch-game-row {
+	background: var(--bbw-color-game-bg);
+	border-color: var(--bbw-color-game-border);
+	font-size: 0.9em;
+	position: relative;
+	padding: 10px 12px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-right: 15px;
+	padding-left: 10px;
+	cursor: pointer;
+	border-style:solid;
+	border-top-width:0px;
+	border-left-width:1px;
+	border-right-width:1px;
+	border-bottom-width:1px;
+}
+
+/*** Make game rows look clickable */
+.bbw-nbawidget-sch-game-row:hover {	
+	background-color: var(--bbw-color-game-hover-bg);
+}
+
+/*** Content wrapper */
+.bbw-nbawidget-sch-game-row-content { 
+	border-color: var(--bbw-color-gamestatus-default-border);
+	border-left-style:solid;
+	border-left-width: 5px;
+}
+.bbw-nbawidget-sch-game-row-content.win {
+	border-color: var(--bbw-color-gamestatus-win-border);
+}
+.bbw-nbawidget-sch-game-row-content.loss {
+	border-color: var(--bbw-color-gamestatus-loss-border);
+}
+
+/*** Game Entry - Top Row Style */
+.bbw-nbawidget-sch-game-row-top {
+	font-size:0.8em;
+	display: flex;
+	justify-content: space-between;
+	margin-left:8px;
+}
+
+/*** Game Entry - Bottom Row Style */
+.bbw-nbawidget-sch-game-row-bottom {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-left:8px;
+}
+
+/*** Game Entry - Cell style for the Game Date */
+.bbw-nbawidget-sch-game-row-date {
+	font-weight: bold;
+	align-content:center;
+}
+
+/*** Game Entry - Cell style for the Status Badge */
+.bbw-nbawidget-sch-game-row-status {
+	background: var(--bbw-color-gamestatus-default-bg); 
+	color: var(--bbw-color-gamestatus-default-text); ;
+	padding: 4px 10px;
+	border-radius: 10px;
+	font-weight: bold;
+}
+.bbw-nbawidget-sch-game-row-status.win {
+	background: var(--bbw-color-gamestatus-win-bg); 
+	color: var(--bbw-color-gamestatus-win-text); ;
+}
+.bbw-nbawidget-sch-game-row-status.loss {
+	background: var(--bbw-color-gamestatus-loss-bg); 
+	color: var(--bbw-color-gamestatus-loss-text); ;
+}
+
+/*** Matchup container */
+.bbw-nbawidget-sch-game-row-matchup {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+}
+
+/*** Team logos */
+.bbw-nbawidget-sch-team-logo {
+	width: 32px;
+	height: 32px;
+	object-fit: contain;
+}
+
+/*** Home/Away symbol */
+.bbw-nbawidget-sch-game-row-homeawaysymbol {
+	background: var(--bbw-color-game-homeawayicon-bg);
+	border-color: var(--bbw-color-game-homeawayicon-border);
+	width:25px;
+	height:25px;
+	line-height:25px;
+	text-align:center;
+	font-size:0.8em;
+	border-width:1px;
+	border-style:solid;
+	border-radius:50%;
+	flex-shrink:0;
+}
+
+/*** Opponent name */
+.bbw-nbawidget-sch-game-row-opponent {
+	font-size: 0.9em;
+}
+.bbw-nbawidget-sch-game-row:hover .bbw-nbawidget-sch-team-logo {
+	transform: scale(1.15);
+	transition: transform 0.2s ease;
+}
+
+/*** Time/Score display */
+.bbw-nbawidget-sch-game-row-timescore {
+	color: var(--bbw-color-gamestatus-default-text);
+	font-size: 0.9em;
+	display: flex;
+	gap: 5px;
+	align-items: center;
+}
+.bbw-nbawidget-sch-game-row-timescore.win {
+	color: var(--bbw-color-gamestatus-win-text); ;
+}
+.bbw-nbawidget-sch-game-row-timescore.loss {
+	color: var(--bbw-color-gamestatus-loss-text); ;
+}
+.bbw-nbawidget-sch-game-row-timescore-separator {
+	font-weight:normal;
+}
+
+/********************************************************************/
+/* Standings Styles */
+/********************************************************************/
+/*** Standings Container */
+.bbw-nbawidget-std-container {
+	background: var(--bbw-color-stdcontainer-bg);
+	padding:10px;
+	padding-top:3px;
+	max-height: 500px;
+	overflow-y: auto;
+	
+	/* these have to be here to match the full widget container */
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+/*** Conference Wrapper for group */
+.bbw-nbawidget-std-group-conference {
+	background: var(--bbw-color-stdconf-bg);
+	border-radius: 10px;
+	overflow:hidden;
+	/*border-top-left-radius:8px;*/
+	/*border-top-right-radius:8px;*/
+}
+
+/*** Wrapper for single standing in the spotlight tab */
+.bbw-nbawidget-spotlight-standing {
+	/* We try to make it look like a group header */
+	color: var(--bbw-color-groupheader-text);
+	background: var(--bbw-color-groupheader-bg);
+	border-color: var(--bbw-color-groupheader-border);
+	border-width: 1px;
+	border-style: solid;
+	border-radius:10px;
+	margin-left:10px;
+	margin-right:10px;
+	margin-top:8px;
+	/*padding-left:6px;*/
+	/*padding-right:6px;*/
+	box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);
+	font-weight:bold;
+
+	overflow:hidden;
+}
+
+/*** Standing Row Container */
+.bbw-nbawidget-std-standing-row {
+	border-color: var(--bbw-color-standing-border);
+	font-size: 0.9em;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	cursor: pointer;
+	padding-left:6px;
+	padding-right:6px;
+}
+
+/*** Make standings rows look clickable */
+.bbw-nbawidget-std-standing-row:hover { 
+	background-color: var(--bbw-color-standing-hover-bg);
+}
+
+/*** Standing Row Summary */
+.bbw-nbawidget-std-standing-row-summary {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/*** Seed Number - Fixed width, left-aligned */
+.bbw-nbawidget-std-standing-row-summary-seed {
+	background: var(--bbw-color-standing-seed-bg);
+	border-color: var(--bbw-color-standing-seed-border);
+	width: 25px;
+	height: 25px;
+	flex-shrink: 0;
+	font-weight: 700;
+	text-align: center;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.8em;
+	border-style: solid;
+	border-width: 1px;
+}
+
+/*** Standings Team Logo */
+.bbw-nbawidget-std-standing-row-summary-logo {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+.bbw-nbawidget-std-standing-row-summary:hover .bbw-nbawidget-std-standing-row-summary-logo {
+	transform: scale(1.15);
+	transition: transform 0.2s ease;
+}
+
+/*** Team Name - Flexible width */
+.bbw-nbawidget-std-standing-row-summary-teamname {
+    flex: 1;
+    min-width: 0; /* Allows text to truncate if needed */
+}
+
+/*** Wins - Fixed width, right-aligned */
+.bbw-nbawidget-std-standing-row-summary-wins {
+	color: var(--bbw-color-gamestatus-win-text);
+    width: 30px;
+    flex-shrink: 0;
+    text-align: center;
+    font-weight: bold;
+	background-color: var(--bbw-color-gamestatus-win-bg);
+	border-radius:4px;
+}
+
+/*** Losses - Fixed width, right-aligned */
+.bbw-nbawidget-std-standing-row-summary-losses {
+	color: var(--bbw-color-gamestatus-loss-text);
+    width: 30px;
+    flex-shrink: 0;
+    text-align: center;
+    font-weight: bold;
+	background-color: var(--bbw-color-gamestatus-loss-bg);
+	border-radius:4px;
+}
+
+
+/********************************************************************/
+/* Detail Catalog Styles */
+/********************************************************************/
+
+/*** Detail Catalog Header */
+.bbw-nbawidget-detail-catalog-header {
+	margin-top:10px;
+	margin-bottom:2px;
+	font-weight: bold;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: var(--bbw-color-detailcatalog-border);
+}
+
+/*** Standings Details Section - Hidden by Default */
+.bbw-nbawidget-sch-game-row-details {
+	max-height: 0;
+	margin-top: 0;
+	overflow: hidden;
+	transition: all 0.3s ease;
+	opacity: 0;
+	
+	font-size: 0.8em;
+	border-radius: 5px;
+	border-width: 1px;
+	border-style: solid;
+	background: var(--bbw-color-detailcatalog-bg);
+}
+
+/*** Standings Details Section - Expanded */
+.bbw-nbawidget-sch-game-row-details.expanded {
+	color:var(--bbw-color-detailcatalog-text);
+	border-color: var(--bbw-color-detailcatalog-border);
+	opacity: 1;
+	max-height: 9999px;
+	margin-top: 8px;
+	padding: 0px 10px 6px 10px;
+}
+
+/*** Standings Details Section - Hidden by Default */
+.bbw-nbawidget-std-standing-row-details {
+	max-height: 0;
+	margin-top: 0;
+	overflow: hidden;
+	transition: all 0.3s ease;
+	opacity: 0;
+	
+	font-size: 0.85em;
+	border-radius: 5px;
+	border-width: 1px;
+	border-style: solid;
+	background: var(--bbw-color-detailcatalog-bg);
+}
+
+/*** Standings Details Section - Expanded */
+.bbw-nbawidget-std-standing-row-details.expanded {
+	color:var(--bbw-color-detailcatalog-text);
+	border-color: var(--bbw-color-detailcatalog-border);
+	opacity: 1;
+	max-height: 9999px;
+	margin: 8px;
+	padding: 0px 10px 6px 10px;
+}
+
+/*** Detail Row - Attempts to setup a vertical alingment of values */
+.bbw-nbawidget-detail-row {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	margin-top: 5px;
+	width: 100%;
+	font-weight:normal;
+}
+
+/*** Detail Name - Left aligned */
+.bbw-nbawidget-detail-name {
+	justify-self: start;
+}
+
+/*** Detail Separator - Center aligned */
+.bbw-nbawidget-detail-separator {
+	justify-self: center;
+	font-weight: bold;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+/*** Detail Value - Right aligned */
+.bbw-nbawidget-detail-value {
+	justify-self: end;
+	text-align: right;
+}
+
+/********************************************************************/
+/* Scrollbar Kits */
+/********************************************************************/
+.bbw-nbawidget-sch-container::-webkit-scrollbar,
+.bbw-nbawidget-std-container::-webkit-scrollbar {
+	width: 8px;
+}
+
+.bbw-nbawidget-sch-container::-webkit-scrollbar-track,
+.bbw-nbawidget-std-container::-webkit-scrollbar-track {
+	background: var(--bbw-color-scroll-track);
+	border-radius:5px;
+	border-top-right-radius:0px;
+}
+
+.bbw-nbawidget-sch-container::-webkit-scrollbar-thumb,
+.bbw-nbawidget-std-container::-webkit-scrollbar-thumb {
+	background: var(--bbw-color-scroll-thumb);
+	border-radius: 3px;
+}
+
+.bbw-nbawidget-sch-container::-webkit-scrollbar-thumb:hover,
+.bbw-nbawidget-std-container::-webkit-scrollbar-thumb:hover {
+	background: var(--bbw-color-scroll-thumb-hover);
+}
+
+/********************************************************************/
+/* Animations */
+/********************************************************************/
+.bbw-nbawidget-sch-game-row,
+.bbw-nbawidget-std-standing-row {
+  animation: fadeSlideIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/********************************************************************/
+/* Theme Colors */
+/********************************************************************/
+/* Widget Theme Definition */
+.bbw-nbawidget-container.lightPaletteSpurs {
+	/*** Default Palette */
+}
+
+/* Widget Theme Definition */
+.bbw-nbawidget-container.darkPaletteSpurs {
+	/******************************************/
+	/* Component Palette */
+	/******************************************/
+	--bbw-palette-highlight: hsl(0, 0%, 20%); 
+	--bbw-palette-maincontent: hsl(0, 0%, 15%);  
+	--bbw-palette-subcontent: hsl(0, 0%, 17%); 
+	--bbw-palette-mutedcontent: hsl(0, 0%, 10%); 
+	--bbw-palette-mainedges: hsl(0, 0%, 35%); 
+	--bbw-palette-shadow: hsl(0, 0%, 90%); 
+	--bbw-palette-text: hsl(0, 0%, 80%); 
+	--bbw-palette-mutedtext: hsl(0, 0%, 70%);
+	--bbw-palette-headertext: hsl(0, 0%, 100%); 
+	--bbw-palette-contrasttext: hsl(0, 0%, 10%);
+	
+	/*** Custom Header for Dark Theme */
+	--bbw-color-header-bg: linear-gradient(0deg, rgb(26, 26, 26), rgb(38, 38, 38));
+	--bbw-color-header-text: hsl(0,0%,100%);
+
+	/*** Override Details to blend in with the background more */
+	--bbw-color-detailcatalog-bg: var(--bbw-palette-mutedcontent);
+	--bbw-color-header-icon-hover-fill: var(--bbw-color-header-text);
+
+	/*** Unfortunately need specific colors for wins/losses/other statuses since they look weird on grey */
+	--bbw-palette-status-win-text: hsl(120, 35%, 35%);
+	--bbw-palette-status-win-bg: hsl(120, 100%, 5%, 0.5);
+	--bbw-palette-status-win-border: hsl(120, 60%, 25%, 0.5);
+	--bbw-palette-status-loss-text: hsl(0, 50%, 45%); 
+	--bbw-palette-status-loss-bg: hsl(0, 53.55%,11.89%, 0.6); 
+	--bbw-palette-status-loss-border: hsl(0, 70%, 25%, 0.75); 
+	--bbw-palette-status-playin-bg: hsl(30, 100%, 40%); 
+	--bbw-palette-status-default-bg: hsl(0, 0%, 20%);
+	--bbw-palette-status-default-text: hsl(0, 0%, 70%);
+	--bbw-palette-status-default-border: hsl(0, 0%, 40%);
+}
+
+
+.bbw-nbawidget-container {
+	/******************************************/
+	/* Component Palette - Override Theme Values for new Theme*/
+	/******************************************/
+	--bbw-palette-highlight: hsl(0, 0%, 100%); /* Use as the most highlighted color */
+	--bbw-palette-maincontent: hsl(0, 0%, 95%);  /* Use for most prominent content */
+	--bbw-palette-subcontent: hsl(0, 0%, 90%);   /* Use for a slightly lower attention content */
+	--bbw-palette-mutedcontent: hsl(0, 0%, 85%);   /* Farther background colors, etc */
+	--bbw-palette-mainedges: hsl(0, 0%, 70%);   /* most borders, slightly darker than far background ideally */
+	--bbw-palette-shadow: hsl(0, 0%, 30%); /* appropriate shadow color for background */
+	--bbw-palette-text: hsl(0, 0%, 0%); /* Default color for text */
+	--bbw-palette-mutedtext: hsl(0, 0%, 30%); /* Muted Color for text */
+	--bbw-palette-headertext: hsl(0, 0%, 20%); /* A more well defined text for headers */
+	--bbw-palette-contrasttext: hsl(0, 0%, 100%); /* Needed when text is on an opposite bg */
+	
+
+	/**********************************************************/
+	/* Alt Color Palette - Might need to override, ideally no */
+	/**********************************************************/
+	--bbw-palette-status-win-bg: rgba(55, 160, 105, 0.15);
+	--bbw-palette-status-win-text: hsl(120, 100%,20%);
+	--bbw-palette-status-win-border: hsl(120, 100%,20%);
+	--bbw-palette-status-loss-bg: rgba(230, 60, 60, 0.1);
+	--bbw-palette-status-loss-text: hsl(0, 100%, 30%);
+	--bbw-palette-status-loss-border: hsl(0, 100%, 30%);
+	--bbw-palette-status-playin-bg: hsl(30, 100%, 50%);
+	--bbw-palette-status-playin-text: hsl(30, 100%, 50%);
+	--bbw-palette-status-playin-border: hsl(30, 100%, 50%);
+	--bbw-palette-status-default-bg: var(--bbw-palette-subcontent);
+	--bbw-palette-status-default-text: var(--bbw-palette-mutedtext);
+	--bbw-palette-status-default-border: var(--bbw-palette-mainedges);
+	
+	/*********************************************************/
+	/* Specific Component Colors - ONLY OVERRIDE IF NEEDED */
+	/*********************************************************/
+	/*** Widget Default Colors ***/
+	--bbw-color-widget-bg: var(--bbw-palette-mutedcontent);
+	--bbw-color-widget-text: var(--bbw-palette-text);
+	--bbw-color-widget-border: var(--bbw-palette-mainedges);
+
+	/*** Widget Header Colors ***/
+	--bbw-color-header-bg: linear-gradient(0deg, rgb(20, 20, 20), rgb(71, 71, 71));
+	--bbw-color-header-text: var(--bbw-palette-highlight);
+	--bbw-color-header-border: var(--bbw-palette-highlight);
+	
+	/*** Icons ***/
+	--bbw-color-header-icon-fill: var(--bbw-palette-mainedges);
+	--bbw-color-header-icon-hover-fill: var(--bbw-color-header-text);
+	
+	/*** Buttons & Like Item ***/
+	--bbw-color-btn-on-bg: var(--bbw-palette-shadow);
+	--bbw-color-btn-on-text: var(--bbw-palette-contrasttext);
+	--bbw-color-btn-on-hover-bg: var(--bbw-palette-mainedges);
+	--bbw-color-btn-off-bg: var(--bbw-palette-mainedges);
+	--bbw-color-btn-off-text: var(--bbw-palette-text);
+	--bbw-color-btn-off-hover-bg: var(--bbw-palette-mainedges);
+		
+	/*** Parameter Drop-Downs ***/
+	--bbw-color-paramgroup-bg: var(--bbw-palette-subcontent);
+	--bbw-color-param-bg: var(--bbw-palette-maincontent);
+	--bbw-color-param-text: var(--bbw-palette-mutedtext);
+	--bbw-color-param-border: var(--bbw-palette-mainedges);
+	
+	/*** Tabs ***/
+	--bbw-color-tab-group-bg: var(--bbw-palette-mutedcontent);
+	--bbw-color-tab-group-border: var(--bbw-palette-mainedges);
+	--bbw-color-tab-inactive-text: var(--bbw-palette-mutedtext);
+	--bbw-color-tab-inactive-hover-bg: var(--bbw-palette-highlight);
+	--bbw-color-tab-active-bg: var(--bbw-palette-highlight);
+	--bbw-color-tab-active-text: var(--bbw-palette-headertext);
+	--bbw-color-tab-active-border: var(--bbw-palette-headertext);
+	
+	/*** Group Header ***/
+	--bbw-color-groupheader-bg: var(--bbw-palette-maincontent);
+	--bbw-color-groupheader-text: var(--bbw-palette-headertext);
+	--bbw-color-groupheader-border: var(--bbw-palette-mainedges);
+	
+	/*** No Data ***/
+	--bbw-color-nodata-text: var(--bbw-palette-mainedges);
+	--bbw-color-nodata-border: var(--bbw-palette-mainedges);
+	
+	/*** Schedule ***/
+	--bbw-color-sch-bg: var(--bbw-palette-mutedcontent);
+	
+	/*** Game ***/
+	--bbw-color-game-bg: var(--bbw-palette-maincontent);
+	--bbw-color-game-border: var(--bbw-palette-mainedges);
+	--bbw-color-game-hover-bg: var(--bbw-palette-highlight);
+	--bbw-color-game-homeawayicon-bg: var(--bbw-palette-highlight);
+	--bbw-color-game-homeawayicon-border: var(--bbw-palette-mainedges);
+	
+	/*** Game Statuses ***/
+	--bbw-color-gamestatus-default-bg: var(--bbw-palette-status-default-bg);
+	--bbw-color-gamestatus-default-text: var(--bbw-palette-status-default-text);
+	--bbw-color-gamestatus-default-border: var(--bbw-palette-status-default-border);
+	--bbw-color-gamestatus-win-bg: var(--bbw-palette-status-win-bg);
+	--bbw-color-gamestatus-win-text: var(--bbw-palette-status-win-text);
+	--bbw-color-gamestatus-win-border: var(--bbw-palette-status-win-border);
+	--bbw-color-gamestatus-loss-bg: var(--bbw-palette-status-loss-bg);
+	--bbw-color-gamestatus-loss-text: var(--bbw-palette-status-loss-text);
+	--bbw-color-gamestatus-loss-border: var(--bbw-palette-status-loss-border);
+
+	/*** Standing ***/
+	--bbw-color-stdcontainer-bg:var(--bbw-palette-mutedcontent);
+	--bbw-color-stdconf-bg: var(--bbw-palette-maincontent);
+	--bbw-color-standing-spotlight-bg: var(--bbw-palette-maincontent);
+	--bbw-color-standing-border: var(--bbw-palette-mainedges);
+	--bbw-color-standing-hover-bg: var(--bbw-palette-highlight);
+	--bbw-color-standing-seed-bg: var(--bbw-palette-highlight);
+	--bbw-color-standing-seed-border: var(--bbw-palette-mainedges);
+	
+	/*** Details Catalog ***/
+	--bbw-color-detailcatalog-bg: var(--bbw-palette-highlight);
+	--bbw-color-detailcatalog-text: var(--bbw-palette-mutedtext);
+	--bbw-color-detailcatalog-border: var(--bbw-palette-mainedges);
+	
+	/*** Settings ***/
+	--bbw-color-setting-footer-border: var(--bbw-palette-mainedges);
+	
+	/*** Scrollbar ***/
+	--bbw-color-scroll-track: var(--bbw-palette-mainedges);
+	--bbw-color-scroll-thumb: var(--bbw-palette-shadow);
+	--bbw-color-scroll-thumb-hover: var(--bbw-palette-shadow);
+}
