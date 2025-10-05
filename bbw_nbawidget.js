@@ -21,7 +21,7 @@ class NBAWidget {
 	//********************************************************************
 	// Data Methods
 	//********************************************************************
-	constructor(pstrTeamCode, pstrWidgetDiv, pstrStorageNamespace, pblnDebugMode = false) {
+	constructor(pstrTeamCode, pstrWidgetDiv, pstrStorageNamespace, pstrCurrentSeason, pstrCurrentSeasonType, pblnDebugMode = false) {
 		//*** Default Debug Mode
 		this.blnDebugMode = pblnDebugMode;
 
@@ -36,8 +36,22 @@ class NBAWidget {
 		this.strWidgetDiv = pstrWidgetDiv;
 		this.strTeamCode = pstrTeamCode;
 		this.dtmSpotlightDate = new Date();
-		this.strSeasonYear = NBAWidget.stcCurrentSeason; //*** Initialize to the current as default
-		this.strSeasonType = NBAWidget.stcCurrentSeasonType; //*** Initialize to the current as default
+
+		//*** Set current season with smart defaulting
+		if (!pstrCurrentSeason || pstrCurrentSeason === "") {
+			const dtmToday = new Date();
+			const intMonth = dtmToday.getMonth() + 1; // getMonth() returns 0-11
+			const intYear = dtmToday.getFullYear();
+			this.strCurrentSeason = (intMonth > 8) ? String(intYear + 1) : String(intYear);
+		} else {
+			this.strCurrentSeason = pstrCurrentSeason;
+		}
+
+		//*** Set current season type with defaulting
+		this.strCurrentSeasonType = (!pstrCurrentSeasonType || pstrCurrentSeasonType === "") ? "2" : pstrCurrentSeasonType;
+
+		this.strSeasonYear = this.strCurrentSeason; //*** Initialize to the current as default
+		this.strSeasonType = this.strCurrentSeasonType; //*** Initialize to the current as default
 		this.strActiveTab = "fullseason";
 
 		//*** Setup Interactive Elements (these are html tags that require event handling)
@@ -80,13 +94,13 @@ class NBAWidget {
 		if (this.blnDebugMode) { console.log("NBAWidget: Begin Load Data"); }
 
 		//*** Load and Process the team's schedule
-		const objTeamSchedule = new TeamSchedule(this.objAPIManager, this.objDataManager);
+		const objTeamSchedule = new TeamSchedule(this.objAPIManager, this.objDataManager, this.strCurrentSeason);
 		objTeamSchedule.procSetDebugMode(this.blnDebugMode);
 		await objTeamSchedule.funcLoadScheduleData(this.strTeamCode, this.strSeasonYear, this.strSeasonType, "ESPN");
 		this.objTeamSchedule = objTeamSchedule;
 
 		//*** Load and Process the NBA Standings
-		const objLeagueStandings = new LeagueStandings(this.objAPIManager, this.objDataManager);
+		const objLeagueStandings = new LeagueStandings(this.objAPIManager, this.objDataManager, this.strCurrentSeason);
 		objLeagueStandings.procSetDebugMode(this.blnDebugMode);
 		await objLeagueStandings.funcLoadStandingsData(this.strSeasonYear, this.strSeasonType, "ESPN");
 		this.objLeagueStandings = objLeagueStandings;
@@ -359,10 +373,10 @@ class NBAWidget {
 		this.selectSeasonYear = selectSeasonYearPicker;
 		this.selectSeasonYear.addEventListener('change', () => {
 			//*** If changing to a non-current season, automatically switch to Regular Season
-			if (this.selectSeasonYear.value !== NBAWidget.stcCurrentSeason) {
+			if (this.selectSeasonYear.value !== this.strCurrentSeason) {
 				this.selectSeasonType.value = "2";
 			} else {
-				this.selectSeasonType.value = NBAWidget.stcCurrentSeasonType
+				this.selectSeasonType.value = this.strCurrentSeasonType
 			}
 			this.strSeasonType = this.selectSeasonType.value
 
@@ -759,9 +773,6 @@ class NBAWidget {
 	//********************************************************************
 	// Helper Methods & Properties
 	//********************************************************************
-	static stcCurrentSeason = "2026";
-	static stcCurrentSeasonType = "1";
-
 	//*** Check if 2 dates are the same 
 	static funcIsSameDate(pdtmDate1, pdtmDate2) {
 		return pdtmDate1.getFullYear() === pdtmDate2.getFullYear() &&
@@ -838,10 +849,11 @@ class TeamSchedule {
 	//********************************************************************
 	// Data Methods
 	//********************************************************************
-	constructor(pobjApiManager, pobjDataManager) {
+	constructor(pobjApiManager, pobjDataManager, pstrCurrentSeason) {
 		//*** Store reference to API manager
 		this.objApiManager = pobjApiManager;
 		this.objDataManager = pobjDataManager;
+		this.strCurrentSeason = pstrCurrentSeason;
 
 		//*** Initialize properties with defaults
 		this.strTeamCode = "";
@@ -879,7 +891,7 @@ class TeamSchedule {
 
 		//*** If prior seasons, store in local storage.  If current, in session storage (gets cleared per widget load and refreshes)
 		let strStorageType = "";
-		if (parseInt(pstrSeason) < NBAWidget.stcCurrentSeason) { strStorageType = "local"; } else { strStorageType = "session"; }
+		if (parseInt(pstrSeason) < parseInt(this.strCurrentSeason)) { strStorageType = "local"; } else { strStorageType = "session"; }
 
 		//*** Check if JSON data has been stored in storage
 		const strStorageKey = `schedule_${pstrTeamCode}_${pstrSeason}_${pstrSeasonType}`;
@@ -1425,10 +1437,11 @@ class LeagueStandings {
 	//********************************************************************
 	// Data Methods
 	//********************************************************************
-	constructor(pobjApiManager, pobjDataManager) {
+	constructor(pobjApiManager, pobjDataManager, pstrCurrentSeason) {
 		//*** Store reference to API manager
 		this.objApiManager = pobjApiManager;
 		this.objDataManager = pobjDataManager;
+		this.strCurrentSeason = pstrCurrentSeason;
 
 		//*** Initialize properties with defaults
 		this.strSeason = "";
@@ -1461,7 +1474,7 @@ class LeagueStandings {
 
 		//*** If prior seasons, store in local storage.  If current, in session storage (gets cleared per widget load and refreshes)
 		let strStorageType = "";
-		if (parseInt(pstrSeason) < NBAWidget.stcCurrentSeason) { strStorageType = "local"; } else { strStorageType = "session"; }
+		if (parseInt(pstrSeason) < parseInt(this.strCurrentSeason)) { strStorageType = "local"; } else { strStorageType = "session"; }
 
 		//*** Check if JSON data has been stored in storage
 		const strStorageKey = `standings_${pstrSeason}_${pstrSeasonType}`;
@@ -2309,10 +2322,12 @@ Main Hook to Replace Placeholder DIV tag
 
 		const strTeamCode = divWidgetContainer.dataset.teamCode || "sa";
 		const strStorageNamespace = divWidgetContainer.dataset.storageNamespace || "bbw-nbawidget";
+		const strCurrentSeason = divWidgetContainer.dataset.currentSeason || "";
+		const strCurrentSeasonType = divWidgetContainer.dataset.currentSeasonType || "";
 		const blnDebugMode = divWidgetContainer.dataset.debugMode === "false";
 
 		//*** Initialize widget with parameters from HTML
-		const objNBAWidget = new NBAWidget(strTeamCode, "bbw-nbawidget-container", strStorageNamespace, blnDebugMode);
+		const objNBAWidget = new NBAWidget(strTeamCode, "bbw-nbawidget-container", strStorageNamespace, strCurrentSeason, strCurrentSeasonType, blnDebugMode);
 		(async () => {
 			objNBAWidget.procClearWidgetSessionStorage();
 			if (objNBAWidget.objPreferences.autoLoadWidget) {

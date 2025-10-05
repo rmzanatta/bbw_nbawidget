@@ -678,6 +678,12 @@
 	text-align: right;
 }
 
+/*** Detail Value - Match link color to text color */
+.bbw-nbawidget-detail-value a {
+	color:var(--bbw-color-detailcatalog-text);
+	text-decoration-line: underline;
+}
+
 /********************************************************************/
 /* Scrollbar Kits */
 /********************************************************************/
