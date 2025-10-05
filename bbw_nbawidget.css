@@ -2,7 +2,6 @@
 /* Global Widget Styles */
 /*******************************************************************/
 
-
 /*** Mimic Baseline bums fonts ***/
 .bbw-nbawidget-container {
 	font-family: 'Segoe UI','Helvetica Neue',Helvetica,Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans',sans-serif;
@@ -145,8 +144,6 @@
 	overflow-y:auto;
 	animation: fadeSlideIn 0.4s ease forwards;
 }
-
-
 
 /* Settings - Row of Setting options */
 .bbw-nbawidget-settings-row {
@@ -588,7 +585,6 @@
 	border-radius:4px;
 }
 
-
 /********************************************************************/
 /* Detail Catalog Styles */
 /********************************************************************/
@@ -761,10 +757,10 @@
 	--bbw-color-header-icon-hover-fill: var(--bbw-color-header-text);
 
 	/*** Unfortunately need specific colors for wins/losses/other statuses since they look weird on grey */
-	--bbw-palette-status-win-text: hsl(120, 35%, 35%);
+	--bbw-palette-status-win-text: hsl(120, 35%, 45%);
 	--bbw-palette-status-win-bg: hsl(120, 100%, 5%, 0.5);
 	--bbw-palette-status-win-border: hsl(120, 60%, 25%, 0.5);
-	--bbw-palette-status-loss-text: hsl(0, 50%, 45%); 
+	--bbw-palette-status-loss-text: hsl(0, 60%, 55%); 
 	--bbw-palette-status-loss-bg: hsl(0, 53.55%,11.89%, 0.6); 
 	--bbw-palette-status-loss-border: hsl(0, 70%, 25%, 0.75); 
 	--bbw-palette-status-playin-bg: hsl(30, 100%, 40%); 

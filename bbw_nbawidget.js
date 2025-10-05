@@ -1,6 +1,5 @@
 
-/**
- * NBA Widget for BaselineBums forum
+/* NBA Widget for BaselineBums forum
  * Copyright (c) 2025. All rights reserved.
  * 
  * This code is proprietary and may not be copied, distributed, or modified
@@ -14,18 +13,18 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 */
 
-//********************************************************************
-// NBA Widget - Globally Manages the NBA Widget
-//********************************************************************
+/* NBA Widget Class 
+Globally Manages the NBA Widget
+*/
 class NBAWidget {
 
 	//********************************************************************
 	// Data Methods
 	//********************************************************************
-	constructor(pstrTeamCode, pstrWidgetDiv, pstrStorageNamespace, pblnDebugMode=false) {
+	constructor(pstrTeamCode, pstrWidgetDiv, pstrStorageNamespace, pblnDebugMode = false) {
 		//*** Default Debug Mode
 		this.blnDebugMode = pblnDebugMode;
-		
+
 		//*** Set Data Loaded Flag
 		this.blnDataLoaded = false;
 
@@ -36,7 +35,7 @@ class NBAWidget {
 		//*** Set Data Elements
 		this.strWidgetDiv = pstrWidgetDiv;
 		this.strTeamCode = pstrTeamCode;
-		this.dtmSpotlightDate = new Date(); 
+		this.dtmSpotlightDate = new Date();
 		this.strSeasonYear = NBAWidget.stcCurrentSeason; //*** Initialize to the current as default
 		this.strSeasonType = NBAWidget.stcCurrentSeasonType; //*** Initialize to the current as default
 		this.strActiveTab = "fullseason";
@@ -51,7 +50,7 @@ class NBAWidget {
 		//*** Initialize Helper Classes
 		this.objAPIManager = new APIManager();
 		this.objAPIManager.procSetDebugMode(pblnDebugMode);
-		this.objDataManager = new DataManager(pstrStorageNamespace);
+		this.objDataManager = new StorageManager(pstrStorageNamespace);
 		this.objDataManager.procSetDebugMode(pblnDebugMode);
 
 		//*** Initialize settings dialog
@@ -112,15 +111,15 @@ class NBAWidget {
 	//********************************************************************
 	//*** Load preferences from localStorage
 	funcLoadPreferences() {
-		if (this.blnDebugMode) {console.log("NBAWidget - Begin user preference load");}
+		if (this.blnDebugMode) { console.log("NBAWidget - Begin user preference load"); }
 
 		//*** Set the Defaults 
 		const defaults = this.funcDefaultSettings()
 
 		//*** Try to Load from Cached Memory
 		try {
-			const objStoredPrefs = this.objDataManager.funcGetJSONFromStorage("local","user_preferences")
-			if (objStoredPrefs) { 
+			const objStoredPrefs = this.objDataManager.funcGetJSONFromStorage("local", "user_preferences")
+			if (objStoredPrefs) {
 				// Merge but filter out null/undefined values from stored
 				const merged = { ...defaults };
 				for (const key in objStoredPrefs) {
@@ -128,7 +127,7 @@ class NBAWidget {
 						merged[key] = objStoredPrefs[key];
 					}
 				}
-				if (this.blnDebugMode) {console.log("NBAWidget - Loaded user preferences", merged);}
+				if (this.blnDebugMode) { console.log("NBAWidget - Loaded user preferences", merged); }
 				return merged;
 			}
 		} catch (error) {
@@ -136,17 +135,17 @@ class NBAWidget {
 		}
 
 		//*** Default Defaults if nothing was loaded
-		if (this.blnDebugMode) {console.log("NBAWidget - No preferences found; returning defaults");}
+		if (this.blnDebugMode) { console.log("NBAWidget - No preferences found; returning defaults"); }
 		return defaults;
 	}
 
 	//*** Save preferences to localStorage
 	procSavePreferences(pobjPreferences) {
-		if (this.blnDebugMode) {console.log("NBAWidget - Begin user preference save");}
+		if (this.blnDebugMode) { console.log("NBAWidget - Begin user preference save"); }
 		try {
 			//*** Try to save user preferences to local storage
 			this.objPreferences = pobjPreferences;
-			this.objDataManager.procSaveJSONToStorage("local","user_preferences",pobjPreferences);
+			this.objDataManager.procSaveJSONToStorage("local", "user_preferences", pobjPreferences);
 			if (this.blnDebugMode) {
 				console.log("NBAWidget - Preferences saved:", pobjPreferences);
 			}
@@ -157,7 +156,7 @@ class NBAWidget {
 
 	//*** Apply user preferences that have been loaded to the widget
 	procApplyPreferences() {
-		if (this.blnDebugMode) {console.log("NBAWidget - Applying preferences:", this.objPreferences);}
+		if (this.blnDebugMode) { console.log("NBAWidget - Applying preferences:", this.objPreferences); }
 
 		//*** Apply the new default tab immediately
 		this.strActiveTab = this.objPreferences.defaultTab;
@@ -171,10 +170,10 @@ class NBAWidget {
 
 	//*** Get Default Settings
 	funcDefaultSettings() {
-		return  {
+		return {
 			theme: "default",
 			defaultTab: "spotlight",
-			upcomingGamesCount: 5,
+			upcomingGamesCount: 3,
 			recentGamesCount: 5,
 			hideSpotlightStanding: false,
 			showRecentFirst: false,
@@ -188,54 +187,54 @@ class NBAWidget {
 	//*** For parent widget only, need a site container finder
 	procRenderWidgetContainer() {
 		//*** Wrapper class to render the widget within the current webpage
-		if(this.blnDebugMode) { console.log("NBAWidget: Begin Widget Container Creation"); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Begin Widget Container Creation"); }
 
 		//*** Initialize Widget Container
-		const divNBAWidgetContainer = document.querySelector('#'+this.strWidgetDiv);
+		const divNBAWidgetContainer = document.querySelector('#' + this.strWidgetDiv);
 		divNBAWidgetContainer.innerHTML = "";
 
 		//*** Set Global Theme
 		let strTheme = "";
-		if(this.objPreferences.theme.toLowerCase() === "default") {
+		if (this.objPreferences.theme.toLowerCase() === "default") {
 			// First, check if the HTML element has a data-color-scheme attribute
 			const htmlElement = document.documentElement;
 			const strForumExplicitScheme = htmlElement.getAttribute('data-color-scheme');
-			if (strForumExplicitScheme) { 
+			if (strForumExplicitScheme) {
 				strTheme = strForumExplicitScheme
-				if (this.blnDebugMode) { console.log("NBAWidget: Use Forum Explicit Theme: ", strTheme)}
+				if (this.blnDebugMode) { console.log("NBAWidget: Use Forum Explicit Theme: ", strTheme) }
 			} else {
 				const blnPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 				strTheme = blnPrefersDark ? 'dark' : 'light';
-				if (this.blnDebugMode) { console.log("NBAWidget: Use System Theme: ", strTheme)}
+				if (this.blnDebugMode) { console.log("NBAWidget: Use System Theme: ", strTheme) }
 			}
 		} else {
 			//*** Use an Explict Widget Theme
 			strTheme = this.objPreferences.theme
-			if (this.blnDebugMode) { console.log("NBAWidget: Use Explicit Theme: ", strTheme)}
+			if (this.blnDebugMode) { console.log("NBAWidget: Use Explicit Theme: ", strTheme) }
 		}
 
 		//*** Set Color Scheme
-		if(strTheme === "dark") {
+		if (strTheme === "dark") {
 			divNBAWidgetContainer.classList.remove("lightPaletteSpurs");
 			divNBAWidgetContainer.classList.add("darkPaletteSpurs");
-		} else  {
+		} else {
 			divNBAWidgetContainer.classList.add("lightPaletteSpurs");
 			divNBAWidgetContainer.classList.remove("darkPaletteSpurs");
 		}
 		//*** Render Widget
 		divNBAWidgetContainer.appendChild(this.funcRenderComponent());
-		if(this.blnDebugMode) { console.log("NBAWidget: Finished Widget Container Creation"); }		
+		if (this.blnDebugMode) { console.log("NBAWidget: Finished Widget Container Creation"); }
 	}
 
 	//*** Main Render Function (Modular)
 	funcRenderComponent() {
-		if(this.blnDebugMode) { console.log("NBAWidget: Begin Component Render"); }		
+		if (this.blnDebugMode) { console.log("NBAWidget: Begin Component Render"); }
 		const divNBAWidget = document.createElement("div");
 		divNBAWidget.className = "bbw-nbawidget"
 
 		//*** Build Rendered Component
 		divNBAWidget.appendChild(this.funcRenderWidgetHeader());
-		if(this.blnDataLoaded) {
+		if (this.blnDataLoaded) {
 			divNBAWidget.appendChild(this.funcRenderSeasonSelectParameters());
 			divNBAWidget.appendChild(this.funcRenderTabs());
 			divNBAWidget.appendChild(this.funcRenderContent());
@@ -244,13 +243,13 @@ class NBAWidget {
 		}
 
 		//*** Return Rendered Component
-		if(this.blnDebugMode) { console.log("NBAWidget: Finished Component Render"); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Finished Component Render"); }
 		return divNBAWidget;
 	}
 
 	//*** Render Header
 	funcRenderWidgetHeader() {
-		if(this.blnDebugMode) { console.log("NBAWidget: Begin Header Render"); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Begin Header Render"); }
 
 		//*** Define Divs
 		const divHeaderContainer = document.createElement("div");
@@ -296,19 +295,19 @@ class NBAWidget {
 
 		//*** Build Header (logo, title, settings)
 		divHeaderButtons.appendChild(divRefreshButton);
-		if(this.blnDataLoaded) {divHeaderButtons.appendChild(divSettingsButton);}
+		if (this.blnDataLoaded) { divHeaderButtons.appendChild(divSettingsButton); }
 		divHeaderContainer.appendChild(divTeamLogo);
 		divHeaderContainer.appendChild(divWidgetTitle);
 		divHeaderContainer.appendChild(divHeaderButtons);
 
 		//*** Return Header
-		if(this.blnDebugMode) { console.log("NBAWidget: Finished Header Render"); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Finished Header Render"); }
 		return divHeaderContainer;
 	}
 
 	//*** Render Parameter - Season Select
 	funcRenderSeasonSelectParameters() {
-		if(this.blnDebugMode) { console.log("NBAWidget: Begin Season Select Paramaters Render"); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Begin Season Select Paramaters Render"); }
 
 		//*** Initialize Tags
 		const divSeasonSelectGroup = document.createElement("div");
@@ -368,13 +367,13 @@ class NBAWidget {
 			this.strSeasonType = this.selectSeasonType.value
 
 			//*** Change Parameter
-			this.procOnParameterChange("strSeasonYear",this.selectSeasonYear.value);
+			this.procOnParameterChange("strSeasonYear", this.selectSeasonYear.value);
 		});
 
 		//*** Add Event Listener to Season Type Picker
 		this.selectSeasonType = selectSeasonTypePicker;
 		this.selectSeasonType.addEventListener('change', () => {
-			this.procOnParameterChange("strSeasonType",this.selectSeasonType.value);
+			this.procOnParameterChange("strSeasonType", this.selectSeasonType.value);
 		});
 
 		//*** Compile and Return
@@ -382,13 +381,13 @@ class NBAWidget {
 		divSeasonSelectGroup.appendChild(selectSeasonTypePicker)
 
 		//*** Return Rendered Component
-		if(this.blnDebugMode) { console.log("NBAWidget: Finished Season Select Paramaters Render"); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Finished Season Select Paramaters Render"); }
 		return divSeasonSelectGroup;
 	}
 
 	//*** Render Tabs to Display
 	funcRenderTabs() {
-		if(this.blnDebugMode) { console.log("NBAWidget: Begin Tab Group Render"); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Begin Tab Group Render"); }
 		const divTabGroup = document.createElement("div");
 		divTabGroup.className = 'bbw-nbawidget-tabgroup';
 
@@ -435,13 +434,13 @@ class NBAWidget {
 		divTabGroup.appendChild(divTabStandings);
 
 		//*** Return Rendered Tabs
-		if(this.blnDebugMode) { console.log("NBAWidget: Finished Tab Group Render"); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Finished Tab Group Render"); }
 		return divTabGroup;
 	}
 
 	//*** Render Content
 	funcRenderContent() {
-		switch(this.strActiveTab) {
+		switch (this.strActiveTab) {
 			case "spotlight":
 				//*** Setup container tag
 				const divSpotlight = document.createElement("div");
@@ -452,9 +451,9 @@ class NBAWidget {
 					const divSpotlightStanding = document.createElement("div");
 					divSpotlightStanding.className = "bbw-nbawidget-spotlight-standing";
 					const objTeamStanding = this.objLeagueStandings.funcGetTeamStanding(this.strTeamCode);
-					if (objTeamStanding) { 
+					if (objTeamStanding) {
 						divSpotlightStanding.appendChild(objTeamStanding.funcRenderComponent());
-						divSpotlight.appendChild(divSpotlightStanding); 
+						divSpotlight.appendChild(divSpotlightStanding);
 					}
 				}
 
@@ -489,7 +488,7 @@ class NBAWidget {
 			const row = document.createElement("div");
 			const label = document.createElement("label");
 			const separator = document.createElement("div");
-			row.className = "bbw-nbawidget-settings-row";		
+			row.className = "bbw-nbawidget-settings-row";
 			label.className = "bbw-nbawidget-settings-label";
 			separator.className = "bbw-nbawidget-settings-separator";
 			label.innerText = labelText;
@@ -511,7 +510,7 @@ class NBAWidget {
 		divBody.className = "bbw-nbawidget-settings-body";
 		divFooter.className = "bbw-nbawidget-settings-footer";
 		btnSave.className = "bbw-nbawidget-settings-button bbw-nbawidget-settings-button-save";
-		
+
 		//*** Create Default Tab select
 		const selectTheme = document.createElement("select");
 		selectTheme.className = "bbw-nbawidget-settings-value";
@@ -636,7 +635,7 @@ class NBAWidget {
 
 				//*** Save Preferences
 				this.procSavePreferences({
-					theme:strTheme,
+					theme: strTheme,
 					defaultTab: strNewDefaultTab,
 					upcomingGamesCount: intUpcomingGames,
 					recentGamesCount: intRecentGames,
@@ -685,7 +684,7 @@ class NBAWidget {
 		if (this.blnDebugMode) { console.log("NBAWidget: Begin No Content Render"); }
 		const divNoContentContainer = document.createElement("div");
 		divNoContentContainer.className = 'bbw-nbawidget-sch-container';
-		
+
 		const divNoData = document.createElement("div");
 		divNoData.className = "bbw-nbawidget-nodata";
 		divNoData.innerText = "Auto-Load Preference Turned Off.\nClick Refresh to Load Widget.";
@@ -714,13 +713,12 @@ class NBAWidget {
 		return `<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 118.04 122.88"><path d="M16.08,59.26A8,8,0,0,1,0,59.26a59,59,0,0,1,97.13-45V8a8,8,0,1,1,16.08,0V33.35a8,8,0,0,1-8,8L80.82,43.62a8,8,0,1,1-1.44-15.95l8-.73A43,43,0,0,0,16.08,59.26Zm22.77,19.6a8,8,0,0,1,1.44,16l-10.08.91A42.95,42.95,0,0,0,102,63.86a8,8,0,0,1,16.08,0A59,59,0,0,1,22.3,110v4.18a8,8,0,0,1-16.08,0V89.14h0a8,8,0,0,1,7.29-8l25.31-2.3Z"/></svg>`
 	}
 
-
 	//********************************************************************
 	// Events Methods
 	//********************************************************************
 	//*** Function to Handle Forced Refreshes
 	procOnForceRefresh() {
-		if(this.blnDebugMode) { console.log("NBAWidget: Begin Widget Refresh"); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Begin Widget Refresh"); }
 
 		//*** Clear the session cache
 		this.procClearWidgetSessionStorage();
@@ -729,13 +727,13 @@ class NBAWidget {
 		(async () => {
 			await this.procLoadData();
 			this.procRenderWidgetContainer();
-			if(this.blnDebugMode) { console.log("NBAWidget: Finished Widget Refresh"); }
+			if (this.blnDebugMode) { console.log("NBAWidget: Finished Widget Refresh"); }
 		})();
 	}
 
 	//*** Function to Handle a parameter change
 	procOnParameterChange(strObjectPropertyName, objNewValue) {
-		if(this.blnDebugMode) { console.log(`NBAWidget: Begin ${strObjectPropertyName} Parameter Changed: ${objNewValue}`); }
+		if (this.blnDebugMode) { console.log(`NBAWidget: Begin ${strObjectPropertyName} Parameter Changed: ${objNewValue}`); }
 
 		//*** Set new parameter property and re-process the widget
 		this[strObjectPropertyName] = objNewValue;
@@ -743,13 +741,13 @@ class NBAWidget {
 		(async () => {
 			await this.procLoadData();
 			this.procRenderWidgetContainer();
-			if(this.blnDebugMode) { console.log(`NBAWidget: Finished ${strObjectPropertyName} Parameter Changed: ${objNewValue}`); }
+			if (this.blnDebugMode) { console.log(`NBAWidget: Finished ${strObjectPropertyName} Parameter Changed: ${objNewValue}`); }
 		})();
 	}
 
 	//*** Function to Handle a tab change
 	procOnTabChange(pstrSelectedTab) {
-		if(this.blnDebugMode) { console.log("NBAWidget: Tab Changed: " + pstrSelectedTab); }
+		if (this.blnDebugMode) { console.log("NBAWidget: Tab Changed: " + pstrSelectedTab); }
 
 		//*** Set Active tab
 		this.strActiveTab = pstrSelectedTab;
@@ -763,7 +761,7 @@ class NBAWidget {
 	//********************************************************************
 	static stcCurrentSeason = "2026";
 	static stcCurrentSeasonType = "1";
-	
+
 	//*** Check if 2 dates are the same 
 	static funcIsSameDate(pdtmDate1, pdtmDate2) {
 		return pdtmDate1.getFullYear() === pdtmDate2.getFullYear() &&
@@ -833,9 +831,9 @@ class NBAWidget {
 
 }
 
-//********************************************************************
-// TeamSchedule Class - Manages the Parsing of Schedule Data
-//********************************************************************
+/* Team Schedule Class 
+Manages the Parsing of Schedule Data
+*/
 class TeamSchedule {
 	//********************************************************************
 	// Data Methods
@@ -881,7 +879,7 @@ class TeamSchedule {
 
 		//*** If prior seasons, store in local storage.  If current, in session storage (gets cleared per widget load and refreshes)
 		let strStorageType = "";
-		if (parseInt(pstrSeason) < NBAWidget.stcCurrentSeason) { strStorageType = "local";} else {strStorageType = "session";}
+		if (parseInt(pstrSeason) < NBAWidget.stcCurrentSeason) { strStorageType = "local"; } else { strStorageType = "session"; }
 
 		//*** Check if JSON data has been stored in storage
 		const strStorageKey = `schedule_${pstrTeamCode}_${pstrSeason}_${pstrSeasonType}`;
@@ -901,11 +899,11 @@ class TeamSchedule {
 		if (jsonScheduleData) {
 			//*** Store Parsed Result in memory
 			this.objDataManager.procSaveJSONToStorage(strStorageType, strStorageKey, jsonScheduleData);
-			if (this.blnDebugMode) {console.log("TeamSchedule - Data loaded successfully");	}
+			if (this.blnDebugMode) { console.log("TeamSchedule - Data loaded successfully"); }
 		} else {
 			//*** Ensure Nothing was saved in memory
 			this.objDataManager.procRemoveDataFromStorage(strStorageType, strStorageKey);
-			if (this.blnDebugMode) {console.log("TeamSchedule - Data load failed");	}
+			if (this.blnDebugMode) { console.log("TeamSchedule - Data load failed"); }
 			return;
 		}
 
@@ -973,7 +971,7 @@ class TeamSchedule {
 			);
 
 			//*** Add additional stats if they're found
-			this.procMapESPNGameStat(objEvent,objGame.objDetailCatalog)
+			this.procMapESPNGameStat(objEvent, objGame.objDetailCatalog)
 
 			//*** Push to array of games
 			objGame.procSetDebugMode(this.blnDebugMode);
@@ -1012,7 +1010,7 @@ class TeamSchedule {
 			}
 
 			pobjDetailCatalog.procAddDetailByValues(
-				"Game Info", "location", "text", "location", "Location", 
+				"Game Info", "location", "text", "location", "Location",
 				strLocation, strLocation
 			);
 		}
@@ -1028,7 +1026,7 @@ class TeamSchedule {
 		//*** Attendance
 		if (objCompetition.attendance) {
 			pobjDetailCatalog.procAddDetailByValues(
-				"Game Info", "attendance", "quantity", "attendance", "Attendance", 
+				"Game Info", "attendance", "quantity", "attendance", "Attendance",
 				objCompetition.attendance, objCompetition.attendance.toLocaleString()
 			);
 		}
@@ -1041,7 +1039,7 @@ class TeamSchedule {
 			const objYTDRecord = objOurTeam.record.find(record => record.shortDisplayName?.toLowerCase() === "ytd");
 			if (objYTDRecord?.displayValue) {
 				pobjDetailCatalog.procAddDetailByValues(
-					"Team Records","ytd","text","ytd", "Season Record", objYTDRecord.displayValue, objYTDRecord.displayValue
+					"Team Records", "ytd", "text", "ytd", "Season Record", objYTDRecord.displayValue, objYTDRecord.displayValue
 				);
 			}
 		}
@@ -1055,12 +1053,12 @@ class TeamSchedule {
 					const strDisplayText = `${strLeaderName} (${strLeaderValue})`;
 
 					pobjDetailCatalog.procAddDetailByValues(
-						"Team Records", 
-						leader.name?.toLowerCase() || "unknown", 
-						"text", 
-						leader.name?.toLowerCase() || "unknown", 
-						leader.displayName || leader.name || "Unknown Stat", 
-						strDisplayText, 
+						"Team Records",
+						leader.name?.toLowerCase() || "unknown",
+						"text",
+						leader.name?.toLowerCase() || "unknown",
+						leader.displayName || leader.name || "Unknown Stat",
+						strDisplayText,
 						strDisplayText
 					);
 				}
@@ -1075,7 +1073,7 @@ class TeamSchedule {
 			const objGamecastLink = pobjEvent.links.find(link => link.text?.toLowerCase() === "gamecast" && link.href?.startsWith("http"));
 			if (objGamecastLink?.href) {
 				pobjDetailCatalog.procAddDetailByValues(
-					"ESPN Links", "gamecast", "link", "", "Gamecast", 
+					"ESPN Links", "gamecast", "link", "", "Gamecast",
 					objGamecastLink.href, "View Gamecast"
 				);
 			}
@@ -1084,7 +1082,7 @@ class TeamSchedule {
 			const objBoxscoreLink = pobjEvent.links.find(link => link.text?.toLowerCase() === "box score" && link.href?.startsWith("http"));
 			if (objBoxscoreLink?.href) {
 				pobjDetailCatalog.procAddDetailByValues(
-					"ESPN Links", "boxscore", "link", "", "Box Score", 
+					"ESPN Links", "boxscore", "link", "", "Box Score",
 					objBoxscoreLink.href, "Full Box Score"
 				);
 			}
@@ -1095,14 +1093,9 @@ class TeamSchedule {
 	// Render Methods
 	//********************************************************************
 
-	//*** Generic Render Method
-	funcRenderComponent() {
-		console.error("Shouldn't use this anymore.  Run Spotlight and Full Schedule functions");
-	}
-
 	// Render Spotlight Schedule: Today's Game, Last X Games, Next X Games
 	funcRenderSpotlight(pdtmSpotlightDate, pintUpcomingGames, pintRecentGames, pblnShowRecentFirst) {
-		if (this.blnDebugMode) { console.log("Team Schedule: Begin Render Spotlight Tab:" + pdtmSpotlightDate.toLocaleString())}
+		if (this.blnDebugMode) { console.log("Team Schedule: Begin Render Spotlight Tab:" + pdtmSpotlightDate.toLocaleString()) }
 		const divSpotlightGames = document.createElement("div");
 		divSpotlightGames.className = 'bbw-nbawidget-sch-container'
 
@@ -1182,7 +1175,7 @@ class TeamSchedule {
 		}
 
 		//*** Return Rendered Component
-		if (this.blnDebugMode) { console.log("Team Schedule: Finished Render Spotlight Tab:" + pdtmSpotlightDate.toLocaleString())}
+		if (this.blnDebugMode) { console.log("Team Schedule: Finished Render Spotlight Tab:" + pdtmSpotlightDate.toLocaleString()) }
 		return divSpotlightGames;
 	}
 
@@ -1235,15 +1228,14 @@ class TeamSchedule {
 
 }
 
-//********************************************************************
-// Game Class - Manages Game Data and Rendering
-//********************************************************************
+/* Game Class
+Manages Individual Game Data and Rendering
+*/
 class Game {
 	//********************************************************************
 	// Data Methods
 	//********************************************************************
-	constructor(pdtmGameDate,pstrStatus,pstrSpursTeamName,pstrSpursScore,pblnHasScore,pblnGameOver,pblnWinner,pblnHomeTeam,pstrOppTeamAbbreviation,pstrOppTeamName,pstrOppScore)
-	{
+	constructor(pdtmGameDate, pstrStatus, pstrSpursTeamName, pstrSpursScore, pblnHasScore, pblnGameOver, pblnWinner, pblnHomeTeam, pstrOppTeamAbbreviation, pstrOppTeamName, pstrOppScore) {
 		this.dtmGameDate = pdtmGameDate;
 		this.strStatus = pstrStatus;
 		this.strSpursTeamName = pstrSpursTeamName;
@@ -1272,7 +1264,7 @@ class Game {
 	// Render Methods
 	//********************************************************************
 	funcRenderComponent(pblnShowYear = false) {
-		if(this.blnDebugMode) { console.log("Game: Begin Component Render"); }
+		if (this.blnDebugMode) { console.log("Game: Begin Component Render"); }
 
 		//*** Initialize Tags
 		const divGame = document.createElement("div");
@@ -1306,7 +1298,7 @@ class Game {
 
 		//*** Set Game Date
 		const arrGameDateOptions = { weekday: "short", month: "short", day: "numeric" };
-		if (pblnShowYear) {	arrGameDateOptions.year = "numeric"; }
+		if (pblnShowYear) { arrGameDateOptions.year = "numeric"; }
 		divDate.innerText = this.dtmGameDate.toLocaleDateString("en-US", arrGameDateOptions);
 
 		//*** Set Game Status
@@ -1331,6 +1323,10 @@ class Game {
 			case "postponed": //*** Show Nothing as Detail
 				break;
 
+			case "in progress":
+				blnShowScore = true;
+				break;
+
 			case "final": //*** Show Score as Detail and Format Final Result Colors
 				blnShowScore = true;
 				blnFormatWinLoss = true;
@@ -1343,13 +1339,13 @@ class Game {
 		}
 
 		//*** Add Time to the Additional Info Tag
-		if(blnShowTime) {
-			const arrGameTimeOptions = { hour: 'numeric', minute: '2-digit', hour12: true};
+		if (blnShowTime) {
+			const arrGameTimeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
 			divTimeScore.innerText = this.dtmGameDate.toLocaleTimeString("en-US", arrGameTimeOptions);
 		}
 
 		//*** Add Score to the Additional Info Tag
-		if(blnShowScore) {
+		if (blnShowScore) {
 			const spanOurScore = document.createElement("span");
 			const spanSeparator = document.createElement("span");
 			const spanOppScore = document.createElement("span");
@@ -1364,7 +1360,7 @@ class Game {
 		}
 
 		//*** Add win/loss formatting tags to relevant divs
-		if(blnFormatWinLoss) {
+		if (blnFormatWinLoss) {
 			const strWinLossTag = this.blnWinner ? "win" : "loss";
 			divTimeScore.classList.add(strWinLossTag);
 			divStatus.classList.add(strWinLossTag);
@@ -1393,7 +1389,7 @@ class Game {
 		divGameDetails.appendChild(this.objDetailCatalog.funcRenderComponent());
 
 		//*** Add click handler for expanding details
-		divGame.addEventListener('click', function() {
+		divGame.addEventListener('click', function () {
 			const divGameDetailsClicked = divGame.querySelector('.bbw-nbawidget-sch-game-row-details');
 			if (divGameDetailsClicked.classList.contains('expanded')) {
 				divGameDetailsClicked.classList.remove('expanded');
@@ -1407,7 +1403,7 @@ class Game {
 		divGame.appendChild(divGameDetails);
 
 		//*** Return Results
-		if(this.blnDebugMode) { console.log("Game: Finished Component Render"); }
+		if (this.blnDebugMode) { console.log("Game: Finished Component Render"); }
 		return divGame;
 	}
 
@@ -1422,9 +1418,9 @@ class Game {
 	}
 }
 
-//********************************************************************
-// LeagueStandings Class - Manages the Parsing of Standings Data
-//********************************************************************
+/* League Standings Class
+Manages the Parsing of Standings Data
+*/
 class LeagueStandings {
 	//********************************************************************
 	// Data Methods
@@ -1465,7 +1461,7 @@ class LeagueStandings {
 
 		//*** If prior seasons, store in local storage.  If current, in session storage (gets cleared per widget load and refreshes)
 		let strStorageType = "";
-		if (parseInt(pstrSeason) < NBAWidget.stcCurrentSeason) { strStorageType = "local";} else {strStorageType = "session";}
+		if (parseInt(pstrSeason) < NBAWidget.stcCurrentSeason) { strStorageType = "local"; } else { strStorageType = "session"; }
 
 		//*** Check if JSON data has been stored in storage
 		const strStorageKey = `standings_${pstrSeason}_${pstrSeasonType}`;
@@ -1485,11 +1481,11 @@ class LeagueStandings {
 		if (jsonStandingsData) {
 			//*** Store Parsed Result in memory
 			this.objDataManager.procSaveJSONToStorage(strStorageType, strStorageKey, jsonStandingsData);
-			if (this.blnDebugMode) {console.log("LeagueStandings - Data loaded successfully");	}
+			if (this.blnDebugMode) { console.log("LeagueStandings - Data loaded successfully"); }
 		} else {
 			//*** Ensure Nothing was saved in memory
 			this.objDataManager.procRemoveDataFromStorage(strStorageType, strStorageKey);
-			if (this.blnDebugMode) {console.log("LeagueStandings - Data load failed");	}
+			if (this.blnDebugMode) { console.log("LeagueStandings - Data load failed"); }
 			return;
 		}
 
@@ -1581,7 +1577,7 @@ class LeagueStandings {
 				);
 
 				//*** Add additional stats if they're found
-				this.procMapESPNStandingStat(arrStats,objStanding.objDetailCatalog)
+				this.procMapESPNStandingStat(arrStats, objStanding.objDetailCatalog)
 
 				//*** Push into array of standings
 				objStanding.procSetDebugMode(this.blnDebugMode);
@@ -1607,41 +1603,52 @@ class LeagueStandings {
 
 		//*** Get Home Record
 		objDetailStat = parrStats.find(s => s.name.toLowerCase() === "home");
-		if (objDetailStat) { 
+		if (objDetailStat) {
 			pobjDetailCatalog.procAddDetailByValues(
 				"Record Details", "homerecord", "", "", "Home Record", null, objDetailStat.displayValue
-			); }
+			);
+		}
 
 		//*** Get Away Record
 		objDetailStat = parrStats.find(s => s.name.toLowerCase() === "road");
-		if (objDetailStat) { pobjDetailCatalog.procAddDetailByValues(
-			"Record Details", "awayrecord", "", "", "Away Record", null, objDetailStat.displayValue
-		); }
+		if (objDetailStat) {
+			pobjDetailCatalog.procAddDetailByValues(
+				"Record Details", "awayrecord", "", "", "Away Record", null, objDetailStat.displayValue
+			);
+		}
 
 		//*** Get Conference Record
 		objDetailStat = parrStats.find(s => s.name.toLowerCase() === "vs. conf.");
-		if (objDetailStat) { pobjDetailCatalog.procAddDetailByValues(
-			"Record Details", "confrecord", "", "", "Vs. Conference", null, objDetailStat.displayValue
-		); }
+		if (objDetailStat) {
+			pobjDetailCatalog.procAddDetailByValues(
+				"Record Details", "confrecord", "", "", "Vs. Conference", null, objDetailStat.displayValue
+			);
+		}
 
 
 		//*** Get Division Record
 		objDetailStat = parrStats.find(s => s.name.toLowerCase() === "vs. div.");
-		if (objDetailStat) { pobjDetailCatalog.procAddDetailByValues(
-			"Record Details", "divrecord", "", "", "Vs. Division", null, objDetailStat.displayValue
-		); }
+		if (objDetailStat) {
+			pobjDetailCatalog.procAddDetailByValues(
+				"Record Details", "divrecord", "", "", "Vs. Division", null, objDetailStat.displayValue
+			);
+		}
 
 		//*** Get Last 10
 		objDetailStat = parrStats.find(s => s.name.toLowerCase() === "last ten games");
-		if (objDetailStat) { pobjDetailCatalog.procAddDetailByValues(
-			"Streak Details", "l10", "", "", "Last 10", null, objDetailStat.displayValue
-		); }
+		if (objDetailStat) {
+			pobjDetailCatalog.procAddDetailByValues(
+				"Streak Details", "l10", "", "", "Last 10", null, objDetailStat.displayValue
+			);
+		}
 
 		//*** Get Streak
 		objDetailStat = parrStats.find(s => s.name.toLowerCase() === "streak");
-		if (objDetailStat) { pobjDetailCatalog.procAddDetailByValues(
-			"Streak Details", "streak", "", "", "Streak", null, objDetailStat.displayValue
-		); }
+		if (objDetailStat) {
+			pobjDetailCatalog.procAddDetailByValues(
+				"Streak Details", "streak", "", "", "Streak", null, objDetailStat.displayValue
+			);
+		}
 	}
 
 	// Get Individual Standing Object
@@ -1733,9 +1740,9 @@ class LeagueStandings {
 	}
 }
 
-//********************************************************************
-// Standing Class - Manages Standing Data and Rendering
-//********************************************************************
+/* Standing Class
+Manages Individual Standing Data and Rendering
+*/
 class Standing {
 	//********************************************************************
 	// Data Methods
@@ -1817,7 +1824,7 @@ class Standing {
 		divStandingSummary.appendChild(divLosses);
 
 		//*** Add click handler for expanding details
-		divStanding.addEventListener('click', function() {
+		divStanding.addEventListener('click', function () {
 			const divStandingDetailsClicked = divStanding.querySelector('.bbw-nbawidget-std-standing-row-details');
 			if (divStandingDetailsClicked.classList.contains('expanded')) {
 				divStandingDetailsClicked.classList.remove('expanded');
@@ -1837,9 +1844,9 @@ class Standing {
 	}
 }
 
-//********************************************************************
-// DetailCatalog Class - Generic Handling of Stats/Details
-//********************************************************************
+/* Detail Catalog Class
+Generic Handling of Stats/Details
+*/
 class DetailCatalog {
 	//********************************************************************
 	// Data Methods
@@ -1859,8 +1866,8 @@ class DetailCatalog {
 
 	//*** Add a detail to a specific catalog
 	procAddDetail(pstrCatalogName, pobjDetail) {
-		if (this.blnDebugMode) { 
-			console.log(`DetailCatalog: Adding detail ${pobjDetail.strID} to catalog ${pstrCatalogName}`); 
+		if (this.blnDebugMode) {
+			console.log(`DetailCatalog: Adding detail ${pobjDetail.strID} to catalog ${pstrCatalogName}`);
 		}
 
 		//*** Initialize the catalog array if it doesn't exist
@@ -1886,14 +1893,14 @@ class DetailCatalog {
 
 	//*** Remove a detail from a specific catalog by ID
 	procRemoveDetail(pstrCatalogName, pstrDetailID) {
-		if (this.blnDebugMode) { 
-			console.log(`DetailCatalog: Removing detail ${pstrDetailID} from catalog ${pstrCatalogName}`); 
+		if (this.blnDebugMode) {
+			console.log(`DetailCatalog: Removing detail ${pstrDetailID} from catalog ${pstrCatalogName}`);
 		}
 
 		//*** Check if catalog exists
 		if (!this.objDetailCatalog[pstrCatalogName]) {
-			if (this.blnDebugMode) { 
-				console.log(`DetailCatalog: Catalog ${pstrCatalogName} does not exist`); 
+			if (this.blnDebugMode) {
+				console.log(`DetailCatalog: Catalog ${pstrCatalogName} does not exist`);
 			}
 			return false;
 		}
@@ -1947,9 +1954,9 @@ class DetailCatalog {
 	}
 }
 
-//********************************************************************
-// Detail Class - Individual Detail Item
-//********************************************************************
+/* Detail  Class
+Individual Detail Item
+*/
 class Detail {
 	//********************************************************************
 	// Data Methods
@@ -2004,7 +2011,7 @@ class Detail {
 				linkElement.innerText = this.strDisplayValue;
 				linkElement.target = "_blank";
 				linkElement.rel = "noopener noreferrer";
-				linkElement.addEventListener('click', function(event) {
+				linkElement.addEventListener('click', function (event) {
 					event.stopPropagation();
 				});
 				divDetailValue.appendChild(linkElement);
@@ -2034,9 +2041,9 @@ class Detail {
 	}
 }
 
-//********************************************************************
-// Generic API Manager Class
-//********************************************************************
+/* API Manager Class
+Seggregating API Calls away from Widget class for future modularity
+*/
 class APIManager {
 	// Constructor
 	constructor() {
@@ -2052,7 +2059,7 @@ class APIManager {
 	// Get Data from Any REST API with Caching
 	async funcGetAPIData(pstrApiUrl, pstrMethod) {
 		//*** Wrapper method to allow other types of fetches that then build JSON (ie: screen scrapper)
-		switch(pstrMethod.toLowerCase()) {
+		switch (pstrMethod.toLowerCase()) {
 			case "json":
 				return await this.funcFetchJSONDataFromURL(pstrApiUrl);
 			default:
@@ -2081,8 +2088,8 @@ class APIManager {
 			const jsonData = await objResponse.json();
 
 			//*** Log successful response
-			if (this.blnDebugMode) { 
-				console.log("API Manager - Fetch successful. Top-level keys:", Object.keys(jsonData)); 
+			if (this.blnDebugMode) {
+				console.log("API Manager - Fetch successful. Top-level keys:", Object.keys(jsonData));
 			}
 
 			//*** Return the parsed JSON
@@ -2097,10 +2104,10 @@ class APIManager {
 
 }
 
-//********************************************************************
-// Data Manager Class
-//********************************************************************
-class DataManager {
+/* Storage Manager Class
+Seggregating Storage Management away from Widget class for future modularity
+*/
+class StorageManager {
 	// Constructor
 	constructor(pstrStorageNamespace) {
 		//*** Validate Namespace is Provided
@@ -2135,7 +2142,7 @@ class DataManager {
 
 		//*** Attempt to Retrieve Storage
 		let strStorageData = "";
-		switch(pstrStorageType.toLowerCase()) {
+		switch (pstrStorageType.toLowerCase()) {
 			case "local":
 				strStorageData = localStorage.getItem(strNamespacedKey);
 				break;
@@ -2160,7 +2167,7 @@ class DataManager {
 		if (this.blnDebugMode) { console.log(`Data Manager - Save ${pstrStorageType} Storage for key: ${strNamespacedKey}`); }
 
 		//*** Attempt to Save to Storage
-		switch(pstrStorageType.toLowerCase()) {
+		switch (pstrStorageType.toLowerCase()) {
 			case "local":
 				localStorage.setItem(strNamespacedKey, pstrData);
 				break;
@@ -2184,7 +2191,7 @@ class DataManager {
 		if (this.blnDebugMode) { console.log(`Data Manager - Remove ${pstrStorageType} Storage for key: ${strNamespacedKey}`); }
 
 		//*** Attempt to Remove from Storage
-		switch(pstrStorageType.toLowerCase()) {
+		switch (pstrStorageType.toLowerCase()) {
 			case "local":
 				localStorage.removeItem(strNamespacedKey);
 				break;
@@ -2262,10 +2269,10 @@ class DataManager {
 	funcGetJSONFromStorage(pstrStorageType, pstrStorageKey) {
 		try {
 			//*** Retrieve JSON Data
-			const strStoredData = this.funcGetDataFromStorage(pstrStorageType,pstrStorageKey);
+			const strStoredData = this.funcGetDataFromStorage(pstrStorageType, pstrStorageKey);
 
 			//*** Return null if no cached data found
-			if (!strStoredData) {return null; }
+			if (!strStoredData) { return null; }
 
 			//*** Parse the JSON string back to object
 			const jsonStoredData = JSON.parse(strStoredData);
@@ -2284,29 +2291,43 @@ class DataManager {
 	}
 }
 
-//********************************************************************
-// Main Hook to Replace Placeholder DIV tag
-//********************************************************************
-(function() {
+/* Run Widget 
+Main Hook to Replace Placeholder DIV tag
+*/
+(function () {
 	//*** Wrap Initialize function 
-    'use strict';
-    function initNBAWidget() {
-        const objNBAWidget = new NBAWidget("sa","bbw-nbawidget-container","bbw-nbawidget:",true);
-        (async () => {
-            objNBAWidget.procClearWidgetSessionStorage();
-            if(objNBAWidget.objPreferences.autoLoadWidget) {
-                await objNBAWidget.procLoadData();
-            }
-            objNBAWidget.procRenderWidgetContainer();
-        })();
-    }
-    
-    //*** Only run when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initNBAWidget);
-    } else {
-        initNBAWidget();
-    }
+	'use strict';
+	function initNBAWidget() {
+		//*** Get container and read data attributes
+		const divWidgetContainer = document.getElementById("bbw-nbawidget-container");
+
+		//*** Check if container exists
+		if (!divWidgetContainer) {
+			console.error("NBA Widget: Container element 'bbw-nbawidget-container' not found");
+			return;
+		}
+
+		const strTeamCode = divWidgetContainer.dataset.teamCode || "sa";
+		const strStorageNamespace = divWidgetContainer.dataset.storageNamespace || "bbw-nbawidget";
+		const blnDebugMode = divWidgetContainer.dataset.debugMode === "false";
+
+		//*** Initialize widget with parameters from HTML
+		const objNBAWidget = new NBAWidget(strTeamCode, "bbw-nbawidget-container", strStorageNamespace, blnDebugMode);
+		(async () => {
+			objNBAWidget.procClearWidgetSessionStorage();
+			if (objNBAWidget.objPreferences.autoLoadWidget) {
+				await objNBAWidget.procLoadData();
+			}
+			objNBAWidget.procRenderWidgetContainer();
+		})();
+	}
+
+	//*** Only run when DOM is ready
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initNBAWidget);
+	} else {
+		initNBAWidget();
+	}
 })();
 
 //********************************************************************
@@ -2325,4 +2346,6 @@ class DataManager {
 //	  so we don't hit ESPN... but not sure
 //	- Standard class to spit back a no data block?
 //	- Need to work on link styling, but for now BB takes care of it
+//	- There are still some hardcoded spurs things in here, like the
+//	  score retrieval
 //********************************************************************
