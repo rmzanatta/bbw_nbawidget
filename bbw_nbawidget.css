@@ -36,8 +36,8 @@
 .bbw-nbawidget {
 	color: var(--bbw-color-widget-text);
 	background: var(--bbw-color-widget-bg);
-	max-width:350px;
 	border-radius:10px;
+	margin-bottom:10px;
 }	
 
 /*** Generic Group Header */
@@ -365,6 +365,17 @@
 	border-color: var(--bbw-color-gamestatus-loss-border);
 }
 
+/*** Game Entry - LIVE Status Bar Style */
+.bbw-nbawidget-sch-game-row-live {
+	text-align:center;
+	color:var(--bbw-color-game-livebar-text);
+	background:var(--bbw-color-game-livebar-bg);
+	margin-left: 5px;
+	margin-bottom: 5px;
+	font-size:0.8em;
+	padding:2px;
+}
+
 /*** Game Entry - Top Row Style */
 .bbw-nbawidget-sch-game-row-top {
 	font-size:0.8em;
@@ -394,6 +405,30 @@
 	padding: 4px 10px;
 	border-radius: 10px;
 	font-weight: bold;
+}
+.bbw-nbawidget-sch-game-row-status.live {
+	background: var(--bbw-color-gamestatus-live-bg); 
+	color: var(--bbw-color-gamestatus-live-text);
+	letter-spacing: 2px;
+}
+.bbw-nbawidget-sch-game-row-status.live::before {
+	content: "";
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	background-color: white;
+	border-radius: 50%;
+	margin-right: 6px;
+	animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.3;
+	}
 }
 .bbw-nbawidget-sch-game-row-status.win {
 	background: var(--bbw-color-gamestatus-win-bg); 
@@ -450,11 +485,14 @@
 	gap: 5px;
 	align-items: center;
 }
+.bbw-nbawidget-sch-game-row-timescore.live {
+	font-weight:bold;
+}
 .bbw-nbawidget-sch-game-row-timescore.win {
-	color: var(--bbw-color-gamestatus-win-text); ;
+	color: var(--bbw-color-gamestatus-win-text); 
 }
 .bbw-nbawidget-sch-game-row-timescore.loss {
-	color: var(--bbw-color-gamestatus-loss-text); ;
+	color: var(--bbw-color-gamestatus-loss-text); 
 }
 .bbw-nbawidget-sch-game-row-timescore-separator {
 	font-weight:normal;
@@ -773,6 +811,7 @@
 	--bbw-palette-status-default-bg: hsl(0, 0%, 20%);
 	--bbw-palette-status-default-text: hsl(0, 0%, 70%);
 	--bbw-palette-status-default-border: hsl(0, 0%, 40%);
+	--bbw-color-game-livebar-bg: hsl(0, 0%, 30%);
 }
 
 
@@ -795,6 +834,9 @@
 	/**********************************************************/
 	/* Alt Color Palette - Might need to override, ideally no */
 	/**********************************************************/
+	--bbw-palette-status-live-bg: rgb(255, 0, 0);
+	--bbw-palette-status-live-text: hsl(0, 0%, 100%);
+	--bbw-palette-status-live-border: hsl(0, 100%, 50%);
 	--bbw-palette-status-win-bg: rgba(55, 160, 105, 0.15);
 	--bbw-palette-status-win-text: hsl(120, 100%,20%);
 	--bbw-palette-status-win-border: hsl(120, 100%,20%);
@@ -807,6 +849,8 @@
 	--bbw-palette-status-default-bg: var(--bbw-palette-subcontent);
 	--bbw-palette-status-default-text: var(--bbw-palette-mutedtext);
 	--bbw-palette-status-default-border: var(--bbw-palette-mainedges);
+	--bbw-color-game-livebar-bg: hsl(0, 0%, 50%);
+	--bbw-color-game-livebar-text: hsl(0, 0%, 100%);
 	
 	/*********************************************************/
 	/* Specific Component Colors - ONLY OVERRIDE IF NEEDED */
@@ -871,6 +915,9 @@
 	--bbw-color-gamestatus-default-bg: var(--bbw-palette-status-default-bg);
 	--bbw-color-gamestatus-default-text: var(--bbw-palette-status-default-text);
 	--bbw-color-gamestatus-default-border: var(--bbw-palette-status-default-border);
+	--bbw-color-gamestatus-live-bg: var(--bbw-palette-status-live-bg);
+	--bbw-color-gamestatus-live-text: var(--bbw-palette-status-live-text);
+	--bbw-color-gamestatus-live-border: var(--bbw-palette-status-live-border);
 	--bbw-color-gamestatus-win-bg: var(--bbw-palette-status-win-bg);
 	--bbw-color-gamestatus-win-text: var(--bbw-palette-status-win-text);
 	--bbw-color-gamestatus-win-border: var(--bbw-palette-status-win-border);

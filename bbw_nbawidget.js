@@ -920,7 +920,7 @@ class TeamSchedule {
 		}
 
 		//*** Parse JSON File
-		this.arrGameObjects = this.funcParseJSONESPN(jsonScheduleData);
+		this.arrGameObjects = await this.funcParseJSONESPN(jsonScheduleData);
 	}
 
 	// Get JSON Data from ESPN
@@ -937,8 +937,22 @@ class TeamSchedule {
 		return jsonRawJSON;
 	}
 
+	// Get Game Detail from ESPN
+	async funcGetGameDetailESPN(pstrEventId) {
+		//*** Build API Url
+		const strUrl = `https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/summary?region=us&lang=en&contentorigin=espn&event=${pstrEventId}`;
+
+		//*** Fetch data using API manager
+		if (this.blnDebugMode) { console.log(`TeamSchedule - Begin Fetch ESPN Game Detail: ${strUrl}`); }
+		const jsonRawJSON = await this.objApiManager.funcGetAPIData(strUrl, "json");
+
+		//*** Return Results
+		if (this.blnDebugMode) { console.log(`TeamSchedule - Finish Fetch ESPN Game Detail: ${strUrl}`); }
+		return jsonRawJSON;
+	}
+
 	// Parse ESPN JSON into Game objects
-	funcParseJSONESPN(pobjJSONScheduleData) {
+	async funcParseJSONESPN(pobjJSONScheduleData) {
 		//*** Log step
 		if (this.blnDebugMode) {
 			console.log("TeamSchedule - Parsing ESPN JSON data");
@@ -968,18 +982,84 @@ class TeamSchedule {
 			if (this.blnDebugMode) {
 				console.log(`TeamSchedule - Adding game vs ${objOppTeam?.team?.abbreviation} on ${dtmGameDate.toLocaleDateString("en-US")}`);
 			}
+
+			//*** Get initial scores and status from schedule API
+			let strOurScore = objOurTeam?.score?.displayValue ?? "0";
+			let strOppScore = objOppTeam?.score?.displayValue ?? "0";
+			let strStatus = objCompetition?.status?.type?.description ?? "Status Unknown";
+			let strStatusDetail = objCompetition?.status?.type?.detail ?? "Detail Unknown";
+			const strEventId = objEvent?.id ?? "";
+
+			//*** Statuses that should skip live game detail fetch
+			const arrSkipStatuses = ["final", "postponed"];
+
+			//*** Check if game has started but isn't final/postponed - fetch live game detail
+			const dtmNow = new Date();
+			if (dtmGameDate < dtmNow && !arrSkipStatuses.includes(strStatus.toLowerCase()) && strEventId) {
+				if (this.blnDebugMode) {
+					console.log(`TeamSchedule - Game has started and is not final/postponed, fetching live game detail for event ${strEventId}`);
+				}
+
+				const jsonGameDetail = await this.funcGetGameDetailESPN(strEventId);
+				if (jsonGameDetail?.header?.competitions?.[0]) {
+					const objLiveCompetition = jsonGameDetail.header.competitions[0];
+
+					//*** Extract status from game detail API
+					if (objLiveCompetition.status?.type?.description) {
+						strStatus = objLiveCompetition.status.type.description;
+					}
+					if (objLiveCompetition.status?.type?.detail) {
+						strStatusDetail = objLiveCompetition.status.type.detail;
+					}
+
+					//*** Extract scores from game detail API
+					if (objLiveCompetition.competitors) {
+						const arrLiveCompetitors = objLiveCompetition.competitors;
+
+						//*** Find our team and opponent in the live data
+						const objLiveOurTeam = arrLiveCompetitors.find(comp => comp.team?.abbreviation === this.strTeamCode.toUpperCase());
+						const objLiveOppTeam = arrLiveCompetitors.find(comp => comp !== objLiveOurTeam);
+
+						//*** Update scores with live data
+						if (objLiveOurTeam?.score) {
+							strOurScore = objLiveOurTeam.score;
+						}
+						if (objLiveOppTeam?.score) {
+							strOppScore = objLiveOppTeam.score;
+						}
+
+						if (this.blnDebugMode) {
+							console.log(`TeamSchedule - Live game detail updated: Status=${strStatus}, Scores=${strOurScore}-${strOppScore}`);
+						}
+					}
+				} else {
+					if (this.blnDebugMode) {
+						console.log(`TeamSchedule - Game detail API failed, using schedule API data as fallback`);
+					}
+				}
+			}
+
+			//*** Normalize live game statuses to "In Progress"
+			const arrLiveStatuses = ["in progress", "halftime", "overtime", "beginning of period", "end of period"];
+			if (arrLiveStatuses.includes(strStatus.toLowerCase())) {
+				strStatus = "In Progress";
+			}
+
 			const objGame = new Game(
 				dtmGameDate || "Date Unknown",
-				objCompetition?.status?.type?.description ?? "Status Unknown",
+				strStatus,
+				strStatusDetail,
 				objOurTeam?.team?.shortDisplayName ?? this.strTeamCode,
-				objOurTeam?.score?.displayValue ?? "0",
+				strOurScore,
 				objOurTeam?.score?.displayValue != null,
 				objOurTeam?.winner != null,
 				objOurTeam?.winner ?? false,
 				objOurTeam?.homeAway ? objOurTeam.homeAway === "home" : true,
 				objOppTeam?.team?.abbreviation ?? "Unknown",
 				objOppTeam?.team?.shortDisplayName ?? "Unknown",
-				objOppTeam?.score?.displayValue ?? "0"
+				strOppScore,
+				"ESPN",
+				strEventId
 			);
 
 			//*** Add additional stats if they're found
@@ -1247,9 +1327,10 @@ class Game {
 	//********************************************************************
 	// Data Methods
 	//********************************************************************
-	constructor(pdtmGameDate, pstrStatus, pstrSpursTeamName, pstrSpursScore, pblnHasScore, pblnGameOver, pblnWinner, pblnHomeTeam, pstrOppTeamAbbreviation, pstrOppTeamName, pstrOppScore) {
+	constructor(pdtmGameDate, pstrStatus, pstrStatusDetail, pstrSpursTeamName, pstrSpursScore, pblnHasScore, pblnGameOver, pblnWinner, pblnHomeTeam, pstrOppTeamAbbreviation, pstrOppTeamName, pstrOppScore, pstrGameDetailIDType, pstrGameDetailID) {
 		this.dtmGameDate = pdtmGameDate;
 		this.strStatus = pstrStatus;
+		this.strStatusDetail = pstrStatusDetail;
 		this.strSpursTeamName = pstrSpursTeamName;
 		this.strSpursScore = pstrSpursScore;
 		this.blnHasScore = pblnHasScore;
@@ -1259,6 +1340,8 @@ class Game {
 		this.strOppTeamAbbreviation = pstrOppTeamAbbreviation;
 		this.strOppTeamName = pstrOppTeamName;
 		this.strOppScore = pstrOppScore;
+		this.strGameDetailIDType = pstrGameDetailIDType;
+		this.strGameDetailID = pstrGameDetailID;
 
 		//*** Default Debug Mode is False
 		this.blnDebugMode = false;
@@ -1281,6 +1364,7 @@ class Game {
 		//*** Initialize Tags
 		const divGame = document.createElement("div");
 		const divContent = document.createElement("div");
+		const divLive = document.createElement("div");
 		const divTop = document.createElement("div");
 		const divDate = document.createElement("div");
 		const divStatus = document.createElement("div");
@@ -1296,6 +1380,7 @@ class Game {
 		//*** Set Tag Classes
 		divGame.className = "bbw-nbawidget-sch-game-row";
 		divContent.className = "bbw-nbawidget-sch-game-row-content";
+		divLive.className = "bbw-nbawidget-sch-game-row-live";
 		divTop.className = "bbw-nbawidget-sch-game-row-top";
 		divDate.className = "bbw-nbawidget-sch-game-row-date";
 		divStatus.className = "bbw-nbawidget-sch-game-row-status";
@@ -1314,11 +1399,16 @@ class Game {
 		divDate.innerText = this.dtmGameDate.toLocaleDateString("en-US", arrGameDateOptions);
 
 		//*** Set Game Status
-		divStatus.innerText = this.strStatus;
+		if (this.strStatus === "In Progress") {
+			divStatus.innerText = "LIVE";
+			divLive.innerText = this.strStatusDetail
+			divContent.appendChild(divLive);
+		} else {
+			divStatus.innerText = this.strStatus;
+		}
 
 		//*** Set Matchup Data
 		imgOurTeam.src = NBAWidget.funcGetTeamLogoURL("SA");
-		//divHomeAwaySymbol.innerText = this.blnHomeTeam ? "🏠" : "✈️";
 		divHomeAwaySymbol.innerText = this.blnHomeTeam ? "vs" : "@";
 		divOpponent.innerText = NBAWidget.mapShortenTeamNames[this.strOppTeamName] || this.strOppTeamName;
 		imgOpponent.src = NBAWidget.funcGetTeamLogoURL(this.strOppTeamAbbreviation);
@@ -1326,7 +1416,7 @@ class Game {
 		//*** Process Status Information
 		let blnShowScore = false;
 		let blnShowTime = false;
-		let blnFormatWinLoss = false;
+		let strFormatStatusClass = "";
 		switch (this.strStatus.toLowerCase()) {
 			case "scheduled": //*** Show Time as Detail
 				blnShowTime = true
@@ -1337,11 +1427,12 @@ class Game {
 
 			case "in progress":
 				blnShowScore = true;
+				strFormatStatusClass = "live";
 				break;
 
 			case "final": //*** Show Score as Detail and Format Final Result Colors
 				blnShowScore = true;
-				blnFormatWinLoss = true;
+				strFormatStatusClass = this.blnWinner ? "win" : "loss";
 				break;
 
 			default: // Ideally doesn'thit, but putting in basic logic
@@ -1371,12 +1462,11 @@ class Game {
 			divTimeScore.appendChild(spanOppScore);
 		}
 
-		//*** Add win/loss formatting tags to relevant divs
-		if (blnFormatWinLoss) {
-			const strWinLossTag = this.blnWinner ? "win" : "loss";
-			divTimeScore.classList.add(strWinLossTag);
-			divStatus.classList.add(strWinLossTag);
-			divContent.classList.add(strWinLossTag)
+		//*** Add status formatting class to relevant divs
+		if (strFormatStatusClass) {
+			divTimeScore.classList.add(strFormatStatusClass);
+			divStatus.classList.add(strFormatStatusClass);
+			divContent.classList.add(strFormatStatusClass)
 		}
 
 		//*** Build Top Section DIV Tag
@@ -1399,6 +1489,11 @@ class Game {
 
 		//*** Create the details section
 		divGameDetails.appendChild(this.objDetailCatalog.funcRenderComponent());
+
+		//*** Auto-expand if game is In Progress
+		if (this.strStatus === "In Progress") {
+			divGameDetails.classList.add('expanded');
+		}
 
 		//*** Add click handler for expanding details
 		divGame.addEventListener('click', function () {
@@ -2324,9 +2419,10 @@ Main Hook to Replace Placeholder DIV tag
 		const strStorageNamespace = divWidgetContainer.dataset.storageNamespace || "bbw-nbawidget";
 		const strCurrentSeason = divWidgetContainer.dataset.currentSeason || "";
 		const strCurrentSeasonType = divWidgetContainer.dataset.currentSeasonType || "";
-		const blnDebugMode = divWidgetContainer.dataset.debugMode === "false";
+		const blnDebugMode = divWidgetContainer.dataset.debugMode === "true" || false;
 
 		//*** Initialize widget with parameters from HTML
+		console.log("Test: ", blnDebugMode);
 		const objNBAWidget = new NBAWidget(strTeamCode, "bbw-nbawidget-container", strStorageNamespace, strCurrentSeason, strCurrentSeasonType, blnDebugMode);
 		(async () => {
 			objNBAWidget.procClearWidgetSessionStorage();
