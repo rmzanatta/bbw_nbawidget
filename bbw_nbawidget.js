@@ -1158,6 +1158,26 @@ class TeamSchedule {
 		}
 
 		//***********************
+		// Broadcasts
+		//***********************
+		if (objCompetition.broadcasts && Array.isArray(objCompetition.broadcasts)) {
+			objCompetition.broadcasts.forEach(broadcast => {
+				// Only add if both type.shortName and media.shortName exist
+				if (broadcast.type?.shortName && broadcast.media?.shortName) {
+					pobjDetailCatalog.procAddDetailByValues(
+						"Broadcasts",
+						broadcast.type.shortName.toLowerCase().replace(/\s+/g, '_'),
+						"text",
+						"",
+						broadcast.type.shortName,
+						broadcast.media.shortName,
+						broadcast.media.shortName
+					);
+				}
+			});
+		}
+
+		//***********************
 		// Links
 		//***********************
 		if (pobjEvent.links) {
