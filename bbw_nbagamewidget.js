@@ -93,15 +93,47 @@ class NBAGameWidget {
 
     // Get Game Detail from ESPN
     async funcGetGameDetailESPN(pstrEventId) {
+        //*** Set storage type,  key, and version for retrieval */
+        const strStorageType = "session";
+        const strStorageKey = "game-data-espn";
+        const strStorageVersion = "1"
+        const intCacheTime = 60000; //*** 1 minute */
+
+        //*** Check storage to see if API response is cached */
+        const jsonData = this.objDataManager.funcGetJSONFromStorage(strStorageType,strStorageKey);
+        if (jsonData) {
+            //*** Check if same game and version
+            if(jsonData.cacheKey === pstrEventId && jsonData.cacheVersion === strStorageVersion) {
+                /*** Same data, check if refetching is allowed */
+                const dtmCurrentTimeStamp = new Date();
+                const dtmRefetchTimeStamp = new Date(jsonData.refetchDate);
+                if(dtmCurrentTimeStamp < dtmRefetchTimeStamp) {
+                    //*** No refetching allowed, return cached data */
+                    return jsonData.cacheData;
+                }
+            }
+
+            //*** Remove from Storage if exists but need to refetch
+            this.objDataManager.procRemoveDataFromStorage(strStorageType,strStorageKey);
+        }
+
         //*** Build API Url
         const strUrl = `https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/summary?region=us&lang=en&contentorigin=espn&event=${pstrEventId}`;
 
-        //*** Fetch data using API manager
-        if (this.blnDebugMode) { console.log(`NBAGameWidget - Begin Fetch ESPN Game Detail: ${strUrl}`); }
+        //*** Fetch data using API manager and store in cache
         const jsonRawJSON = await this.objAPIManager.funcGetAPIData(strUrl, "json");
+        const dtmFetchDate = new Date();
+        const dtmRefetchDate = new Date(dtmFetchDate.getTime() + intCacheTime);
+        const jsonCacheData = {
+            cacheKey: pstrEventId,
+            cacheVersion: strStorageVersion,
+            fetchDate: dtmFetchDate.toISOString(),
+            refetchDate: dtmRefetchDate.toISOString(),
+            cacheData: jsonRawJSON
+        };
+        this.objDataManager.procSaveJSONToStorage(strStorageType, strStorageKey,jsonCacheData);
 
         //*** Return Results
-        if (this.blnDebugMode) { console.log(`NBAGameWidget - Finish Fetch ESPN Game Detail: ${strUrl}`); }
         return jsonRawJSON;
     }
 

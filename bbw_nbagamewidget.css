@@ -1,0 +1,491 @@
+/*******************************************************************/
+/* Global Widget Styles */
+/*******************************************************************/
+
+/*** Mimic Baseline bums fonts ***/
+.bbw-nbagamewidget-container {
+	font-family: 'Segoe UI','Helvetica Neue',Helvetica,Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans',sans-serif;
+    min-width:500px;
+}
+
+.bbw-nbagamewidget-container select {
+    font-family: 'Segoe UI','Helvetica Neue',Helvetica,Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans',sans-serif;
+	flex: 1;
+	padding: 5px;
+	border-radius: 12px;
+	border-width: 1px;
+	border-style: solid;
+	cursor: pointer;
+}
+
+.bbw-nbagamewidget {
+	color: var(--bbw-color-widget-text);
+	background: var(--bbw-color-widget-bg);
+    border-color: var(--bbw-color-widget-border);
+    border-style:solid;
+    border-width:1px;
+	border-radius:10px;
+	padding:10px;
+}	
+
+.bbw-nbagamewidget-nodata {
+	color: var(--bbw-color-nodata-text);
+	border-color: var(--bbw-color-nodata-border);
+    display:flex;
+    align-items: center;
+    flex-direction:column;
+	font-size: 0.85em;
+	margin: 10px;
+	text-align: center;
+	border-radius: 10px;
+	border-style: dashed;
+	border-width: 2px;
+	padding:20px;
+}
+
+.bbw-nbagamewidget-button {
+	color: var(--bbw-color-button-text);
+    background: var(--bbw-color-button-bg);
+	border-color: var(--bbw-color-button-border);
+	cursor: pointer;
+    padding: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius:10px;
+    font-size:0.8em;
+    font-weight:bold;
+    letter-spacing: 1px;
+}
+
+.bbw-nbagamewidget-button:hover {
+    background: var(--bbw-color-button-hover-bg);
+}
+
+/*******************************************************************/
+/* Header Styles */
+/*******************************************************************/
+
+.bbw-nbagamewidget-header-container {
+    color: var(--bbw-color-header-text);
+    background: var(--bbw-color-header-bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 4px;
+    min-height:36px;
+}
+
+.bbw-nbagamewidget-header-buttongroup {
+    cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap:6px;
+	margin-right:6px;
+}
+
+.bbw-nbagamewidget-header-button svg {
+	fill:var(--bbw-color-header-icon-fill);
+	stroke-linecap:round;
+	stroke-linejoin:round;
+	width: 15px;
+	height: 15px;
+    transition: all 0.2s;
+}
+
+.bbw-nbagamewidget-header-button svg:hover {
+	fill:var(--bbw-color-header-icon-hover-fill);
+    transform: rotate(45deg) scale(1.15);
+}
+
+/*******************************************************************/
+/* Header Bar */
+/*******************************************************************/
+.bbw-nbagamewidget-header {
+
+}
+
+.bbw-nbagamewidget-header-banner {
+    color: var(--bbw-color-header-banner-text);
+    background: var(--bbw-color-header-banner-bg);
+    border-color: var(--bbw-color-header-banner-border);
+    display: flex;
+    justify-content: space-between;
+    font-size:0.8em;
+    padding-left:20px;
+    padding-right:20px;
+    padding-bottom:5px;
+    padding-top:5px;
+    border-bottom-style: solid;
+    border-right-style: solid;
+    border-left-style: solid;
+    border-width:1px;
+    border-bottom-left-radius:10px;
+    border-bottom-right-radius:10px;
+}
+
+.bbw-nbagamewidget-header-banner-gamedate {
+
+}
+
+.bbw-nbagamewidget-header-banner-location {
+    
+}
+
+.bbw-nbagamewidget-header-score {
+    background-color: var(--bbw-color-header-score-bg);
+    border-color: var(--bbw-color-header-score-border);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items:center;
+    justify-content: space-between;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+    margin-top:10px;
+}
+
+.bbw-nbagamewidget-header-score-primary {
+    display: flex;
+    align-items: center;
+    justify-self: start;
+}
+
+.bbw-nbagamewidget-header-score-primarylogo {
+    width: 80px;
+    height: auto;
+}
+
+.bbw-nbagamewidget-header-score-secondary {
+    display: flex;
+    align-items: center;
+    justify-self: right;
+}
+
+.bbw-nbagamewidget-header-score-secondarylogo {
+    width: 80px;
+    height: auto;
+}
+
+.bbw-nbagamewidget-header-score-status {
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    justify-self: end;
+}
+
+.bbw-nbagamewidget-header-score-status-score {
+    font-size:1.6em;
+}
+
+.bbw-nbagamewidget-header-score-status-status {
+    font-size:0.8em;
+}
+
+/*******************************************************************/
+/* Tab Styles */
+/*******************************************************************/
+.bbw-nbagamewidget-tabgroup {
+	display: flex;
+	overflow:hidden;
+	gap:5px;
+    margin-top:10px;
+}
+
+.bbw-nbagamewidget-tab {
+    color: var(--bbw-color-tab-inactive-text);
+    font-size:0.8em;
+	flex: 1;
+	text-align: center;
+	padding: 8px;
+	cursor: pointer;
+	font-weight: normal;
+    border-radius:10px;
+    white-space: nowrap;
+    transition:all 0.5s ease;
+}
+
+.bbw-nbagamewidget-tab.active {
+    color: var(--bbw-color-tab-active-text);
+    background: var(--bbw-color-tab-active-bg);
+    border-color: var(--bbw-color-tab-active-border);
+	font-weight: bold;
+	border-width: 1px;
+	border-style: solid;
+}
+
+.bbw-nbagamewidget-tab:hover {
+	background: var(--bbw-color-tab-hover-bg);;
+}
+
+/*******************************************************************/
+/* Game Summary Tab */
+/*******************************************************************/
+.bbw-nbagamewidget-gamesummary {
+    background: var(--bbw-color-summary-bg);
+    border-color: var(--bbw-color-summary-border);
+    margin-top:10px;
+    padding: 10px;
+    border-style:solid;
+    border-width:1px;
+    border-radius:10px;
+}
+
+/*******************************************************************/
+/* Box Score Tab */
+/*******************************************************************/
+.bbw-nbagamewidget-boxscore {
+    background: var(--bbw-color-boxscore-bg);
+    border-color: var(--bbw-color-boxscore-border);
+    overflow-x: auto;
+    margin-top:10px;
+    padding: 10px;
+    border-style:solid;
+    border-width:1px;
+    border-radius:10px;
+}
+
+.bbw-nbagamewidget-boxscore-options {
+    display:flex;
+    gap:5px;
+}
+
+.bbw-nbagamewidget-boxscore-options select {
+    color: var(--bbw-color-boxcore-select-text);
+    background: var(--bbw-color-boxcore-select-bg);
+    border-color: var(--bbw-color-boxcore-select-border);
+    max-width: 150px;
+    font-size:0.7em;
+}
+
+.bbw-nbagamewidget-boxscore-content {
+    max-width: 100%;
+    overflow-x:auto;
+}
+
+/*******************************************************************/
+/* Generic Table */
+/*******************************************************************/
+.bbw-nbagamewidget-table {
+    margin-top:10px;
+}
+
+.bbw-nbagamewidget-table-title {
+    color: var(--bbw-color-table-title-text);
+    background: var(--bbw-color-table-title-bg);
+    border-color: var(--bbw-color-table-title-border);
+    font-weight: bold;
+    font-size: 0.6em;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    padding:5px 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius:10px;
+}
+
+.bbw-nbagamewidget-table-header {
+    color: var(--bbw-color-table-header-text);
+    display: flex;
+    font-size: 0.8em;
+    font-weight: bold;
+    padding-top:2px;
+    padding-bottom:2px;
+}
+
+.bbw-nbagamewidget-table-header-key {
+    flex: 1;
+    text-align: left;
+    margin-left:10px;
+}
+
+.bbw-nbagamewidget-table-header-column {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    width: 50px;
+    text-align:center;
+}
+
+.bbw-nbagamewidget-table-row {
+    display: flex;
+    padding-top:2px;
+    padding-bottom:2px;
+    border-radius:10px;
+}
+
+.bbw-nbagamewidget-table-row:hover {
+    background: var(--bbw-color-table-row-hover-bg);
+}
+
+.bbw-nbagamewidget-table-row-key {
+    flex: 1;
+    text-align: left;
+    margin-left:10px;
+}
+
+.bbw-nbagamewidget-table-row-column {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    width: 50px;
+    text-align:center;
+}
+
+/*******************************************************************/
+/* Generic Team Comparison Table */
+/*******************************************************************/
+.bbw-nbagamewidget-compare {
+    margin-top:10px;
+}
+
+.bbw-nbagamewidget-compare-title {
+    color: var(--bbw-color-compare-title-text);
+    background: var(--bbw-color-compare-title-bg);
+    border-color: var(--bbw-color-compare-title-border);
+    font-weight: bold;
+    font-size: 0.6em;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    padding:5px 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius:10px;
+}
+
+.bbw-nbagamewidget-compare-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items:center;
+    justify-content: space-between;
+    padding-top:2px;
+    padding-bottom:2px;
+    border-radius:10px;
+    font-size:0.8em;
+}
+
+.bbw-nbagamewidget-compare-row:hover {
+    background: var(--bbw-color-compare-row-hover-bg);
+}
+
+.bbw-nbagamewidget-compare-row-primary {
+    text-align: left;
+    justify-self: start;
+    margin-left:10px;
+}
+
+.bbw-nbagamewidget-compare-row-label {
+    color: var(--bbw-color-compare-row-label-text);
+    text-align: center;
+    /*font-size:0.6em;*/
+    /*text-transform: uppercase;*/
+    letter-spacing:2px;
+    width:200px;
+    flex-shrink:0;
+    justify-self: center;
+}  
+
+.bbw-nbagamewidget-compare-row-secondary {
+    text-align: right;
+    justify-self: right;
+    margin-right:10px;
+}
+
+/********************************************************************/
+/* Theme Colors */
+/********************************************************************/
+/* Widget Theme Definition */
+.bbw-nbagamewidget-container.lightPaletteSpurs {
+	/*** Default Palette */
+}
+
+/* Widget Theme Definition */
+.bbw-nbagamewidget-container.darkPaletteSpurs {
+    
+}
+
+.bbw-nbagamewidget-container {
+	/******************************************/
+	/* Component Palette - Override Theme Values for new Theme*/
+	/******************************************/
+	--bbw-palette-highlight: hsl(0, 0%, 100%); /* Use as the most highlighted color */
+	--bbw-palette-maincontent: hsl(0, 0%, 95%);  /* Use for most prominent content */
+	--bbw-palette-subcontent: hsl(0, 0%, 90%);   /* Use for a slightly lower attention content */
+	--bbw-palette-mutedcontent: hsl(0, 0%, 85%);   /* Farther background colors, etc */
+	--bbw-palette-mainedges: hsl(0, 0%, 70%);   /* most borders, slightly darker than far background ideally */
+	--bbw-palette-shadow: hsl(0, 0%, 30%); /* appropriate shadow color for background */
+	--bbw-palette-text: hsl(0, 0%, 0%); /* Default color for text */
+	--bbw-palette-mutedtext: hsl(0, 0%, 30%); /* Muted Color for text */
+	--bbw-palette-headertext: hsl(0, 0%, 20%); /* A more well defined text for headers */
+	--bbw-palette-contrasttext: hsl(0, 0%, 100%); /* Needed when text is on an opposite bg */
+
+	/*********************************************************/
+	/* Specific Component Colors - ONLY OVERRIDE IF NEEDED */
+	/*********************************************************/
+	/*** Widget Default Colors ***/
+	--bbw-color-widget-bg: var(--bbw-palette-mutedcontent);
+	--bbw-color-widget-text: var(--bbw-palette-text);
+	--bbw-color-widget-border: var(--bbw-palette-mainedges);
+
+	/*** Widget Header Colors ***/
+	--bbw-color-header-bg: linear-gradient(0deg, rgb(20, 20, 20), rgb(71, 71, 71));
+	--bbw-color-header-text: var(--bbw-palette-highlight);
+
+    /*** Widget Icons Colors ***/
+	--bbw-color-header-icon-fill: var(--bbw-palette-mainedges);
+	--bbw-color-header-icon-hover-fill: var(--bbw-color-header-text);
+
+    /*** Widget Button Colors ***/
+    --bbw-color-button-text: var(--bbw-palette-mutedtext);
+    --bbw-color-button-bg: var(--bbw-palette-subcontent);
+	--bbw-color-button-border: var(--bbw-palette-mainedges);
+    --bbw-color-button-hover-bg: var(--bbw-palette-highlight);
+
+    /*** Header Banner Colors ***/
+    --bbw-color-header-banner-bg: var(--bbw-palette-subcontent);
+    --bbw-color-header-banner-text: var(--bbw-palette-mutedtext);
+    --bbw-color-header-banner-border: var(--bbw-palette-mainedges);
+
+    /*** Header Score Colors ***/
+	--bbw-color-header-score-bg: var(--bbw-palette-maincontent);
+    --bbw-color-header-score-border: var(--bbw-palette-mainedges);
+
+    /*** Tab Colors ***/
+    --bbw-color-tab-active-bg: var(--bbw-palette-highlight);
+    --bbw-color-tab-active-border: var(--bbw-palette-mainedges);
+    --bbw-color-tab-active-text: var(--bbw-palette-headertext);
+    --bbw-color-tab-hover-bg: var(--bbw-palette-highlight);
+    --bbw-color-tab-inactive-text: var(--bbw-palette-mutedtext);
+
+    /*** Summary Colors ***/
+    --bbw-color-summary-bg: var(--bbw-palette-maincontent);
+    --bbw-color-summary-border: var(--bbw-palette-mainedges);
+    --bbw-color-summary-select-bg: var(--bbw-palette-subcontent);
+
+    /*** Box Score Colors ***/
+    --bbw-color-boxscore-bg: var(--bbw-palette-maincontent);
+    --bbw-color-boxscore-border: var(--bbw-palette-mainedges);
+    --bbw-color-boxcore-select-bg: var(--bbw-palette-subcontent);
+    --bbw-color-boxcore-select-text: var(--bbw-palette-mutedtext);
+    --bbw-color-boxcore-select-border: var(--bbw-palette-mainedges);
+
+    /*** Table Styles ***/
+    --bbw-color-table-title-bg: var(--bbw-palette-subcontent);
+    --bbw-color-table-title-text: var(--bww-palette-mutedtext);
+    --bbw-color-table-title-border: var(--bbw-palette-mainedges);
+    --bbw-color-table-header-text: var(--bbw-palette-mutedtext);
+    --bbw-color-table-row-hover-bg: var(--bbw-palette-highlight);
+
+    /*** Stat Compare Styles ***/
+    --bbw-color-compare-title-bg: var(--bbw-palette-subcontent);
+    --bbw-color-compare-title-text: var(--bww-palette-mutedtext);
+    --bbw-color-compare-title-border: var(--bbw-palette-mainedges);
+    --bbw-color-compare-row-hover-bg: var(--bbw-palette-highlight);
+    --bbw-color-compare-row-label-text: var(--bbw-palette-mutedtext);
+
+	/*** No Data ***/
+	--bbw-color-nodata-text: var(--bbw-palette-mutedtext);
+	--bbw-color-nodata-border: var(--bbw-palette-mainedges);
+}
