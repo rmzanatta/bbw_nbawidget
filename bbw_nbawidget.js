@@ -89,9 +89,24 @@ class NBAWidget {
 		this.dtmSpotlightDate = new Date(pdtmTestDate.getTime() - pdtmTestDate.getTimezoneOffset() * 60000);
 	}
 
-	//*** Load ScheduleData
+    //*** Check if Widget is allowed to run */
+    funcAllowWidgetRun() {
+        //*** Only allow running within baselinebums if the data-logged-in element is true for logged in users */
+        const blnIsLoggedIn = document.documentElement.getAttribute('data-logged-in');
+        return blnIsLoggedIn === 'true';
+    }
+
+	//*** Load Widget Data
 	async procLoadData() {
 		if (this.blnDebugMode) { console.log("NBAWidget: Begin Load Data"); }
+
+		//*** Reset Data Loaded Flag
+		this.blnDataLoaded = false;
+
+		//*** Short Circuit if Widget is not allowed to run */
+		if(!this.funcAllowWidgetRun()) {
+			return;
+		}
 
 		//*** Load and Process the team's schedule
 		const objTeamSchedule = new TeamSchedule(this.objAPIManager, this.objDataManager, this.strCurrentSeason);
@@ -699,9 +714,18 @@ class NBAWidget {
 		const divNoContentContainer = document.createElement("div");
 		divNoContentContainer.className = 'bbw-nbawidget-sch-container';
 
+		//*** Determine if Reason is not logged in */
+		let strReason = "";
+		if (!this.funcAllowWidgetRun()) { 
+			strReason = "Must be logged in to use widget";
+		} else {
+			strReason =  "Auto-Load Preference Turned Off.\nClick Refresh to Load Widget.";
+		}
+
+		//*** Create Element */
 		const divNoData = document.createElement("div");
 		divNoData.className = "bbw-nbawidget-nodata";
-		divNoData.innerText = "Auto-Load Preference Turned Off.\nClick Refresh to Load Widget.";
+		divNoData.innerText = strReason
 		divNoContentContainer.appendChild(divNoData);
 		if (this.blnDebugMode) { console.log("NBAWidget: Finished No Content Render"); }
 		return divNoContentContainer;
@@ -991,7 +1015,7 @@ class TeamSchedule {
 			const strEventId = objEvent?.id ?? "";
 
 			//*** Statuses that should skip live game detail fetch
-			const arrSkipStatuses = ["final", "postponed"];
+			const arrSkipStatuses = ["final", "final/ot", "postponed"];
 
 			//*** Check if game has started but isn't final/postponed - fetch live game detail
 			const dtmNow = new Date();
