@@ -131,8 +131,8 @@ class NBAWidget {
 	}
 
 	//*** Force Full Clear of all local storage (all data & preferences)
-	procClearWidgetLocalStorage() {
-		this.objDataManager.procClearLocalStorage()
+	procClearWidgetLocalStorage(arrKeysToKeep = []) {
+		this.objDataManager.procClearLocalStorage(arrKeysToKeep)
 	}
 
 	//********************************************************************
@@ -312,12 +312,12 @@ class NBAWidget {
 			window.open('https://www.espn.com/nba/team/_/name/sa/san-antonio-spurs', '_blank', 'noopener,noreferrer');
 		});
 
-		//*** Add click settings event
+		//*** Add click refresh event
 		divRefreshButton.addEventListener('click', () => {
 			this.procOnForceRefresh();
 		});
 
-		//*** Add click refresh event
+		//*** Add click settings event
 		divSettingsButton.addEventListener('click', () => {
 			this.procOpenSettings();
 		});
@@ -2380,7 +2380,7 @@ class StorageManager {
 	}
 
 	//*** Clear All Local Storage for This Namespace
-	procClearLocalStorage() {
+	procClearLocalStorage(arrKeysToKeep = []) {
 		//*** Log Debug
 		if (this.blnDebugMode) { console.log(`Data Manager - Clearing Local Storage for namespace: ${this.strStorageNamespace}`); }
 
@@ -2392,8 +2392,14 @@ class StorageManager {
 		for (let i = localStorage.length - 1; i >= 0; i--) {
 			const strKey = localStorage.key(i);
 			if (strKey && strKey.startsWith(strNamespacePrefix)) {
-				localStorage.removeItem(strKey);
-				intKeysRemoved++;
+				//*** Extract the key name without namespace prefix
+				const strKeyName = strKey.substring(strNamespacePrefix.length);
+
+				//*** Only remove if not in the keep list
+				if (!arrKeysToKeep.includes(strKeyName)) {
+					localStorage.removeItem(strKey);
+					intKeysRemoved++;
+				}
 			}
 		}
 
@@ -2469,6 +2475,10 @@ Main Hook to Replace Placeholder DIV tag
 		console.log("Test: ", blnDebugMode);
 		const objNBAWidget = new NBAWidget(strTeamCode, "bbw-nbawidget-container", strStorageNamespace, strCurrentSeason, strCurrentSeasonType, blnDebugMode);
 		(async () => {
+			//*** Temporary Code to Clean Up People's Local Storage */
+			objNBAWidget.procClearWidgetLocalStorage(["user_preferences"]);
+
+			//*** Load Widget Normally */
 			objNBAWidget.procClearWidgetSessionStorage();
 			if (objNBAWidget.objPreferences.autoLoadWidget) {
 				await objNBAWidget.procLoadData();
