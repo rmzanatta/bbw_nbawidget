@@ -5,7 +5,15 @@
 /*** Mimic Baseline bums fonts ***/
 .bbw-nbagamewidget-container {
 	font-family: 'Segoe UI','Helvetica Neue',Helvetica,Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans',sans-serif;
-    min-width:500px;
+    font-size: 16px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .bbw-nbagamewidget-container {
+        /* Styles for narrow viewports */
+        font-size:14px;
+    }
 }
 
 .bbw-nbagamewidget-container select {
@@ -127,11 +135,11 @@
 }
 
 .bbw-nbagamewidget-header-banner-gamedate {
-
+    text-align:left;
 }
 
 .bbw-nbagamewidget-header-banner-location {
-    
+    text-align:right;
 }
 
 .bbw-nbagamewidget-header-score {
@@ -149,23 +157,31 @@
 
 .bbw-nbagamewidget-header-score-primary {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-self: start;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left:15px;
 }
 
 .bbw-nbagamewidget-header-score-primarylogo {
-    width: 80px;
+    width: 50px;
     height: auto;
 }
 
 .bbw-nbagamewidget-header-score-secondary {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-self: right;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-right:15px;
 }
 
 .bbw-nbagamewidget-header-score-secondarylogo {
-    width: 80px;
+    width: 50px;
     height: auto;
 }
 
@@ -189,7 +205,7 @@
 /*******************************************************************/
 .bbw-nbagamewidget-tabgroup {
 	display: flex;
-	overflow:hidden;
+	overflow-x:auto;
 	gap:5px;
     margin-top:10px;
 }
@@ -226,11 +242,33 @@
 .bbw-nbagamewidget-gamesummary {
     background: var(--bbw-color-summary-bg);
     border-color: var(--bbw-color-summary-border);
+    max-width:100%;
+    overflow-x: auto;
     margin-top:10px;
     padding: 10px;
     border-style:solid;
     border-width:1px;
     border-radius:10px;
+}
+
+.bbw-nbagamewidget-gamesummary-periodscores {
+    max-width: 100%;
+    overflow-x:auto;
+    min-width:300px;
+}
+
+.bbw-nbagamewidget-gamesummary-teamleaders {
+    max-width: 100%;
+    overflow-x:auto;
+    min-width:300px;
+}
+
+/* Mobile */
+@media (max-width: 450px) {
+    .bbw-nbagamewidget-container {
+        /* Reduce Font Size even more for small viewport team leaders */
+        font-size:12px;
+    }
 }
 
 /*******************************************************************/
@@ -240,6 +278,7 @@
     background: var(--bbw-color-boxscore-bg);
     border-color: var(--bbw-color-boxscore-border);
     overflow-x: auto;
+    max-width:100%;
     margin-top:10px;
     padding: 10px;
     border-style:solid;
@@ -363,7 +402,6 @@
     padding-top:2px;
     padding-bottom:2px;
     border-radius:10px;
-    font-size:0.8em;
 }
 
 .bbw-nbagamewidget-compare-row:hover {
@@ -379,11 +417,7 @@
 .bbw-nbagamewidget-compare-row-label {
     color: var(--bbw-color-compare-row-label-text);
     text-align: center;
-    /*font-size:0.6em;*/
-    /*text-transform: uppercase;*/
     letter-spacing:2px;
-    width:200px;
-    flex-shrink:0;
     justify-self: center;
 }  
 

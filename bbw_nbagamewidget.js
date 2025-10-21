@@ -94,10 +94,10 @@ class NBAGameWidget {
     // Get Game Detail from ESPN
     async funcGetGameDetailESPN(pstrEventId) {
         //*** Set storage type,  key, and version for retrieval */
-        const strStorageType = "session";
+        const strStorageType = "local";
         const strStorageKey = "game-data-espn";
         const strStorageVersion = "1"
-        const intCacheTime = 60000; //*** 1 minute */
+        const intCacheTime = 600000; //*** 1 minute */
 
         //*** Check storage to see if API response is cached */
         const jsonData = this.objDataManager.funcGetJSONFromStorage(strStorageType,strStorageKey);
@@ -343,13 +343,14 @@ class NBAGameWidget {
         //*** Get Game Date */
         const divGameDate = document.createElement("div");
         divGameDate.className = "bbw-nbagamewidget-header-banner-gamedate";
-        const arrGameDateOptions = { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: 'numeric', minute: '2-digit', hour12: true };
-        divGameDate.innerHTML = this.dtmGameDate.toLocaleDateString("en-US", arrGameDateOptions);
+        const arrGameDateOptions = { weekday: "short", month: "short", day: "numeric", year: "numeric"};
+        const arrGameTimeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+        divGameDate.innerHTML = this.dtmGameDate.toLocaleDateString("en-US", arrGameDateOptions) + "<br>" + this.dtmGameDate.toLocaleTimeString("en-US", arrGameTimeOptions);
 
         //*** Get Game Location */
         const divLocation = document.createElement("div");
         divLocation.className = "bbw-nbagamewidget-header-banner-location";
-        divLocation.innerHTML = this.strVenueName + " - " + this.strCityName;
+        divLocation.innerHTML = this.strVenueName + "<br>" + this.strCityName;
 
         //*** Create Game Banner */
         const divBanner = document.createElement("div");
@@ -388,8 +389,8 @@ class NBAGameWidget {
         imgSecondaryTeamLogo.src = NBAGameWidget.funcGetTeamLogoURL(objSecondaryTeam.strTeamCode);
 
         divSecondaryTeam.className = "bbw-nbagamewidget-header-score-secondary";
-        divSecondaryTeam.appendChild(divSecondaryTeamName);
         divSecondaryTeam.appendChild(imgSecondaryTeamLogo);
+        divSecondaryTeam.appendChild(divSecondaryTeamName);
 
         //*** Create Score  */
         const divScore = document.createElement("div");
@@ -499,7 +500,12 @@ class NBAGameWidget {
         arrPeriodHeader.push("TOT");
 
         //*** Render Period Scores Table */
-        const divPeriodScores = NBAGameWidget.funcRenderTable("Scoreboard", "50px",arrPeriodHeader, arrPeriodScores);
+        const divPeriodScores = NBAGameWidget.funcRenderTable("Scoreboard", "40px",arrPeriodHeader, arrPeriodScores);
+
+        //*** Create Container */
+        const divPeriodScoresContainer = document.createElement("div");
+        divPeriodScoresContainer.className = "bbw-nbagamewidget-gamesummary-periodscores";
+        divPeriodScoresContainer.appendChild(divPeriodScores);
 
         //*** Create Team Leader Compare */
         let arrTeamLeaders = [];
@@ -528,13 +534,16 @@ class NBAGameWidget {
         //*** Build Team Leader Component */
         const divTeamLeaders = NBAGameWidget.funcRenderComparison("Team Leaders",arrTeamLeaders);
 
-        //*** Create Summary Widget */
+        //*** Create Container */
+        const divTeamLeadersContainer = document.createElement("div");
+        divTeamLeadersContainer.className = "bbw-nbagamewidget-gamesummary-teamleaders";
+        divTeamLeadersContainer.appendChild(divTeamLeaders);
+
+        //*** Create Summary Widget  */
         const divGameSummary = document.createElement("div");
         divGameSummary.className = "bbw-nbagamewidget-gamesummary";
-        divGameSummary.appendChild(divPeriodScores);
-        divGameSummary.appendChild(divTeamLeaders);
-
-        //*** Return Rendered Component */
+        divGameSummary.appendChild(divPeriodScoresContainer);
+        divGameSummary.appendChild(divTeamLeadersContainer);
         return divGameSummary;
     }
 
@@ -640,6 +649,8 @@ class NBAGameWidget {
         divBoxScoreContent.appendChild(divBoxScoreBench);
         if(this.strBoxScoreFullOrCompact.toLowerCase() === "full") {
             divBoxScoreContent.style.minWidth = "850px";
+        } else {
+            divBoxScoreContent.style.minWidth = "500px";
         }
 
         //*** Create Summary Widget */
@@ -1335,7 +1346,6 @@ Main Hook to Replace Placeholder DIV tag
 
         //*** Check if container exists
         if (!divWidgetContainer) {
-            console.error("NBA Game Widget: Container element 'bbw-nbagamewidget-container' not found");
             return;
         }
 
