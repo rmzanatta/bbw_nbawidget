@@ -370,7 +370,7 @@ class NBAGameWidget {
         divPrimaryTeamName.className = "bbw-nbagamewidget-header-score-primaryname";
         divPrimaryTeamName.innerHTML = objPrimaryTeam.strTeamName + (objPrimaryTeam.blnHomeTeam ? " &#127968;" : "");
 
-        imgPrimaryTeamLogo.className = "bbw-nbagamewidget-header-score-primarylogo";
+        imgPrimaryTeamLogo.className = "bbw-nbagamewidget-header-score-logo";
         imgPrimaryTeamLogo.src = NBAGameWidget.funcGetTeamLogoURL(objPrimaryTeam.strTeamCode);
 
         divPrimaryTeam.className = "bbw-nbagamewidget-header-score-primary";
@@ -385,7 +385,7 @@ class NBAGameWidget {
         divSecondaryTeamName.className = "bbw-nbagamewidget-header-score-secondaryname";
         divSecondaryTeamName.innerHTML = (objSecondaryTeam.blnHomeTeam ? "&#127968; " : "") + objSecondaryTeam.strTeamName;
 
-        imgSecondaryTeamLogo.className = "bbw-nbagamewidget-header-score-secondarylogo";
+        imgSecondaryTeamLogo.className = "bbw-nbagamewidget-header-score-logo";
         imgSecondaryTeamLogo.src = NBAGameWidget.funcGetTeamLogoURL(objSecondaryTeam.strTeamCode);
 
         divSecondaryTeam.className = "bbw-nbagamewidget-header-score-secondary";
@@ -500,7 +500,8 @@ class NBAGameWidget {
         arrPeriodHeader.push("TOT");
 
         //*** Render Period Scores Table */
-        const divPeriodScores = NBAGameWidget.funcRenderTable("Scoreboard", "40px",arrPeriodHeader, arrPeriodScores);
+        const divPeriodScores = NBAGameWidget.funcRenderStickyTable("Scoreboard",arrPeriodHeader,arrPeriodScores);
+        //const divPeriodScores = NBAGameWidget.funcRenderTable("Scoreboard", "40px",arrPeriodHeader, arrPeriodScores);
 
         //*** Create Container */
         const divPeriodScoresContainer = document.createElement("div");
@@ -639,19 +640,16 @@ class NBAGameWidget {
         }
 
         //*** Create Elements for Box Score */
-        const divBoxScoreStarters = NBAGameWidget.funcRenderTable("Starters", "50px",arrBoxScoreHeader, objDisplayTeam.funcGetPlayerStats(this.strBoxScoreFullOrCompact,["starter"]));
-        const divBoxScoreBench = NBAGameWidget.funcRenderTable("Bench", "50px",arrBoxScoreHeader, objDisplayTeam.funcGetPlayerStats(this.strBoxScoreFullOrCompact,["bench", "dnp"]));
+        const divBoxScoreStarters = NBAGameWidget.funcRenderStickyTable("Starters",arrBoxScoreHeader, objDisplayTeam.funcGetPlayerStats(this.strBoxScoreFullOrCompact,["starter"]));
+        const divBoxScoreBench = NBAGameWidget.funcRenderStickyTable("Bench", arrBoxScoreHeader, objDisplayTeam.funcGetPlayerStats(this.strBoxScoreFullOrCompact,["bench", "dnp"]));
+        //const divBoxScoreStarters = NBAGameWidget.funcRenderTable("Starters", "50px",arrBoxScoreHeader, objDisplayTeam.funcGetPlayerStats(this.strBoxScoreFullOrCompact,["starter"]));
+        //const divBoxScoreBench = NBAGameWidget.funcRenderTable("Bench", "50px",arrBoxScoreHeader, objDisplayTeam.funcGetPlayerStats(this.strBoxScoreFullOrCompact,["bench", "dnp"]));
 
         //*** Create Box Score Content */
         const divBoxScoreContent = document.createElement("div");
         divBoxScoreContent.className = "bbw-nbagamewidget-boxscore-content";
         divBoxScoreContent.appendChild(divBoxScoreStarters);
         divBoxScoreContent.appendChild(divBoxScoreBench);
-        if(this.strBoxScoreFullOrCompact.toLowerCase() === "full") {
-            divBoxScoreContent.style.minWidth = "850px";
-        } else {
-            divBoxScoreContent.style.minWidth = "500px";
-        }
 
         //*** Create Summary Widget */
         const divBoxScore = document.createElement("div");
@@ -807,6 +805,96 @@ class NBAGameWidget {
 
         //*** Return Rendered Table */
         return divTable;
+    }
+
+    //*** Generally Render a Sticky Table */
+    static funcRenderStickyTable(pstrTitle, parrHeaderNames, parrRowData) {
+        /*** Create Sticky Table */
+        const divTable = document.createElement("div");
+        divTable.className = "bbw-nbagamewidget-stickytable";
+
+        /*** Create Title */
+        if (pstrTitle != "") {
+            const divTableTitle = document.createElement("div");
+            divTableTitle.className = "bbw-nbagamewidget-stickytable-title";
+            divTableTitle.innerHTML = pstrTitle;
+            divTable.appendChild(divTableTitle);
+        }
+
+        /*** Create Table Viewport for Scrolling */
+        const divTableViewPort = document.createElement("div");
+        divTableViewPort.className = "bbw-nbagamewidget-stickytable-viewport";
+
+        /*** Create Table Content */
+        const divTableContent = document.createElement("table");
+        divTableContent.className = "bbw-nbagamewidget-stickytable-content"
+
+        /*** Create Table Header */
+        if (parrHeaderNames && parrHeaderNames.length > 0) {
+            /*** Create Header Container */
+            const divTableHeaderContainer= document.createElement("thead");
+
+            /*** Create Header Row */
+            const divTableHeaderRow = document.createElement("tr");
+
+            /*** Create Header Columns */
+            for (let i = 0; i < parrHeaderNames.length; i++) {
+                /*** Create Column */
+                const divTableHeaderColumn = document.createElement("th");
+                divTableHeaderColumn.innerHTML = parrHeaderNames[i];
+
+                /*** If First Column, make sticky */
+                if (i===0) {
+                    divTableHeaderColumn.className = "bbw-nbagamewidget-stickytable-key";
+                }
+
+                /*** Add Column to Row */
+                divTableHeaderRow.appendChild(divTableHeaderColumn);
+            }
+
+            //*** Add Header to container and viewport*/
+            divTableHeaderContainer.appendChild(divTableHeaderRow);
+            divTableContent.appendChild(divTableHeaderContainer);
+        }
+
+        /*** Create Table Rows */
+        if (parrRowData && parrRowData.length > 0) {
+            /*** Create Table Body */
+            const divTableRowsContainer = document.createElement("tbody");
+ 
+            /*** Loop Through Rows */
+            for (let i = 0; i < parrRowData.length; i++) {
+                /*** Create Row */
+                const divTableRowsRow = document.createElement("tr");
+
+                /*** Create Row Columns */
+                for (let j = 0; j < parrRowData[i].length; j++) {
+                     /*** Create Column */
+                    const divTableRowColumn = document.createElement("td");
+                    divTableRowColumn.innerHTML = parrRowData[i][j];
+
+                    /*** If First Column, make sticky */
+                    if (j===0) {
+                        divTableRowColumn.className = "bbw-nbagamewidget-stickytable-key";
+                    }
+
+                    /*** Add Column to Row */
+                    divTableRowsRow.appendChild(divTableRowColumn);
+                }
+
+                //*** Add Row to container*/
+                divTableRowsContainer.appendChild(divTableRowsRow)
+            }
+
+            //*** Add Rows to the container */
+            divTableContent.appendChild(divTableRowsContainer);
+        }
+
+        /*** Build Table and Return */        
+        divTableViewPort.appendChild(divTableContent);
+        divTable.appendChild(divTableViewPort);
+        return divTable;
+
     }
 
     //*** Generally Render a Stat Comparison Table  */
@@ -1044,6 +1132,12 @@ class PlayerStats {
 
     //*** Return Formatted Box Score */
     funcGetPlayerStats(pstrDisplayType) {
+        //*** If player played 0 minutes, return name and DNP reason */
+        if (parseInt(this.intMinutes) === 0) {
+            return [this.strName];
+        }
+
+        //*** Return full or compact stats */
         switch (pstrDisplayType.toLowerCase()) {
             case "full":
                 return [
