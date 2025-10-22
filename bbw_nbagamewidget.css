@@ -205,6 +205,39 @@
     font-size:0.8em;
 }
 
+.bbw-nbagamewidget-header-live {
+	background: var(--bbw-color-gamestatus-live-bg); 
+	color: var(--bbw-color-gamestatus-live-text);
+    font-weight:bold;
+	letter-spacing: 2px;
+    margin-top:10px;
+    border-radius:10px;
+    text-align:center;
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+.bbw-nbagamewidget-header-live::before {
+	content: "";
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	background-color: white;
+	border-radius: 50%;
+	margin-right: 6px;
+	animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.3;
+	}
+}
+
+
 /* Mobile */
 @media (max-width: 600px) {
     .bbw-nbagamewidget-header-score-logo {
@@ -310,6 +343,32 @@
 
 .bbw-nbagamewidget-boxscore-content {
     background:inherit;
+}
+
+/*******************************************************************/
+/* Injuries Tab */
+/*******************************************************************/
+.bbw-nbagamewidget-injury {
+    background: var(--bbw-color-boxscore-bg);
+    border-color: var(--bbw-color-boxscore-border);
+    margin-top:10px;
+    padding: 10px;
+    border-style:solid;
+    border-width:1px;
+    border-radius:10px;
+}
+
+/*******************************************************************/
+/* Team Stats Tab */
+/*******************************************************************/
+.bbw-nbagamewidget-teamstats {
+    background: var(--bbw-color-teamstats-bg);
+    border-color: var(--bbw-color-teamstats-border);
+    margin-top:10px;
+    padding: 10px;
+    border-style:solid;
+    border-width:1px;
+    border-radius:10px;
 }
 
 /*******************************************************************/
@@ -467,6 +526,8 @@
 	--bbw-palette-mutedtext: hsl(0, 0%, 40%); /* Muted Color for text */
 	--bbw-palette-headertext: hsl(0, 0%, 20%); /* A more well defined text for headers */
 	--bbw-palette-contrasttext: hsl(0, 0%, 100%); /* Needed when text is on an opposite bg */
+    --bbw-palette-live-bg: rgb(255, 0, 0);
+	--bbw-palette-live-text: hsl(0, 0%, 100%);
 
 	/*********************************************************/
 	/* Specific Component Colors - ONLY OVERRIDE IF NEEDED */
@@ -499,6 +560,10 @@
 	--bbw-color-header-score-bg: var(--bbw-palette-maincontent);
     --bbw-color-header-score-border: var(--bbw-palette-mainedges);
 
+    /*** Header Live Scores ***/
+    --bbw-color-gamestatus-live-bg: var(--bbw-palette-live-bg);
+	--bbw-color-gamestatus-live-text: var(--bbw-palette-live-text);
+
     /*** Tab Colors ***/
     --bbw-color-tab-active-bg: var(--bbw-palette-highlight);
     --bbw-color-tab-active-border: var(--bbw-palette-mainedges);
@@ -517,6 +582,14 @@
     --bbw-color-boxcore-select-bg: var(--bbw-palette-subcontent);
     --bbw-color-boxcore-select-text: var(--bbw-palette-mutedtext);
     --bbw-color-boxcore-select-border: var(--bbw-palette-mainedges);
+
+    /*** Injury Colors ***/
+    --bbw-color-injury-bg: var(--bbw-palette-maincontent);
+    --bbw-color-injury-border: var(--bbw-palette-mainedges);
+
+    /*** Team Stats Colors ***/
+    --bbw-color-teamstats-bg: var(--bbw-palette-maincontent);
+    --bbw-color-teamstats-border: var(--bbw-palette-mainedges);
 
     /*** Table Styles ***/
     --bbw-color-stickytable-title-bg: var(--bbw-palette-subcontent);

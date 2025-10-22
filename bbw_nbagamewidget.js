@@ -35,7 +35,7 @@ class NBAGameWidget {
 		//*** Setup Interactive Elements (these are tags that require event handling)
 		this.tabSummary = null;
 		this.tabBoxScore = null;
-        this.tabTeams = null;
+        this.tabTeamStats = null;
         this.tabInjury = null;
 		this.selectBoxScoreTeam = null;
 		this.selectBoxScoreStyle = null;
@@ -296,7 +296,7 @@ class NBAGameWidget {
             const objTeamStats = new TeamStats();
 
             //*** Extra Team Info */
-            objTeamStats.strTeamCode = objCompetitor.team.abbreviation;
+            objTeamStats.strTeamCode = objCompetitor.team.abbreviation.toLowerCase();
             objTeamStats.strTeamName = objCompetitor.team.name;
 
             //*** Extract Score Information */
@@ -323,7 +323,7 @@ class NBAGameWidget {
         if (arrTeamBoxScore && arrTeamBoxScore.length > 0) {
             for (let i = 0; i < arrTeamBoxScore.length; i++) {
                 //*** Determine Team the Stats are for */
-                const strTeamBoxScoreCode = arrTeamBoxScore[i].team.abbreviation;
+                const strTeamBoxScoreCode = arrTeamBoxScore[i].team.abbreviation.toLowerCase();
 
                 //*** Loop through player stats */
                 const arrPlayerStats = arrTeamBoxScore[i].statistics[0].athletes
@@ -373,6 +373,28 @@ class NBAGameWidget {
         this.objHomeTeam.procSortPlayerStatsByMinutes();
         this.objAwayTeam.procSortPlayerStatsByMinutes();
 
+        //*** Extract Injury Information
+        const arrInjuryElements = pjsonGameData.injuries;
+        for(let i = 0; i < arrInjuryElements.length; i++) {
+            //*** Extract Injury Info */
+            let arrInjuryDetails = [];
+            const arrInjuries = arrInjuryElements[i].injuries;
+            for(let j = 0; j < arrInjuries.length; j++) {
+                //*** Extract Injury Information */
+                arrInjuryDetails.push([
+                    arrInjuries[j].athlete.shortName,
+                    arrInjuries[j].details.type
+                ]);
+            }
+
+            //*** Add Injuries to team */
+            if (arrInjuryDetails.length>0) {
+                const strInjuryTeam = arrInjuryElements[i].team.abbreviation.toLowerCase()
+                const objTargetTeam = (this.objHomeTeam.strTeamCode === strInjuryTeam) ? this.objHomeTeam : this.objAwayTeam;
+                objTargetTeam.arrInjuries = arrInjuryDetails;
+            }
+        }
+
         //*** Set Data Loaded Flag */
         this.blnDataLoaded = true;
     }
@@ -415,8 +437,8 @@ class NBAGameWidget {
                 case "boxscore":
                     divNBAGameWidget.appendChild(this.funcRenderComponentBoxScoreTab(this.strBoxScorePrimaryOrSecondary, this.strBoxScoreFullOrCompact));
                     break;    
-                case "teams":
-                    divNBAGameWidget.appendChild(this.funcRenderComponentTeamsTab());
+                case "teamstats":
+                    divNBAGameWidget.appendChild(this.funcRenderComponentTeamStatsTab());
                     break;
                 case "injury":
                     divNBAGameWidget.appendChild(this.funcRenderComponentInjuryTab());
@@ -550,6 +572,12 @@ class NBAGameWidget {
         const divSummaryHeader = document.createElement("div");
         divSummaryHeader.className = "bbw-nbagamewidget-header";
         divSummaryHeader.appendChild(divBanner);
+        if(this.blnLiveGame) {
+            const divLive = document.createElement("div");
+            divLive.className = "bbw-nbagamewidget-header-live";
+            divLive.innerText = "LIVE";
+            divSummaryHeader.appendChild(divLive);
+        }
         divSummaryHeader.appendChild(divScoreBanner);
         return divSummaryHeader;
     }
@@ -562,13 +590,13 @@ class NBAGameWidget {
         //*** Build Out Tab Objects */
         this.tabSummary = this.funcRenderAndBuildTab("summary", "Summary");
 		this.tabBoxScore = this.funcRenderAndBuildTab("boxscore", "Box Score");
-        this.tabTeams = this.funcRenderAndBuildTab("teams", "Head to Head");;
+        this.tabTeamStats = this.funcRenderAndBuildTab("teamstats", "Team Stats");;
         this.tabInjury = this.funcRenderAndBuildTab("injury", "Injuries");;
 
 		//*** Build Rendered Tab Group
 		divTabGroup.appendChild(this.tabSummary);
 		divTabGroup.appendChild(this.tabBoxScore);
-        divTabGroup.appendChild(this.tabTeams);
+        divTabGroup.appendChild(this.tabTeamStats);
         divTabGroup.appendChild(this.tabInjury);
         return divTabGroup;	
 	} 
@@ -784,26 +812,77 @@ class NBAGameWidget {
 
     //*** Render Head to Head Tab */
     funcRenderComponentInjuryTab() {
-        const divNoData = document.createElement("div");
-		divNoData.className = "bbw-nbagamewidget-nodata";
-		divNoData.innerText = "Coming Soon...";
-		return divNoData;
-    }
+        //*** Determine Primary and Secondary Teams */
+        const objPrimaryTeam = this.funcGetPrimaryTeam();
+        const objSecondaryTeam = this.funcGetSecondaryTeam();
+        const intMaxInjuries = Math.max(objPrimaryTeam.arrInjuries.length, objSecondaryTeam.arrInjuries.length);
 
-    //*** Render Injuries Tab */
-    funcRenderComponentInjuryTab() {
-        const divNoData = document.createElement("div");
-		divNoData.className = "bbw-nbagamewidget-nodata";
-		divNoData.innerText = "Coming Soon...";
-		return divNoData;
+        //*** Create Injuries Table */
+        let arrInjuries = [];
+        for(let i=0; i < intMaxInjuries; i++) {
+            //*** Get Primary Injury if it exists */
+            let strPrimaryInjury = "";
+            if(i < objPrimaryTeam.arrInjuries.length) {
+                strPrimaryInjury = objPrimaryTeam.arrInjuries[i][0] + " (" + objPrimaryTeam.arrInjuries[i][1] + ")";
+            }
+
+            //*** Get Secondary Injury if it exists */
+            let strSecondaryInjury = "";
+            if(i < objSecondaryTeam.arrInjuries.length) {
+                strSecondaryInjury = objSecondaryTeam.arrInjuries[i][0] + " (" + objSecondaryTeam.arrInjuries[i][1] + ")";
+            }
+
+
+            //*** Push Data */
+            arrInjuries.push([strPrimaryInjury, " - ", strSecondaryInjury]);
+        }
+
+        //*** Create Injuries Tab */
+        const divInjuries = document.createElement("div");
+        divInjuries.className = "bbw-nbagamewidget-injury";
+        divInjuries.appendChild(NBAGameWidget.funcRenderComparison("Injuries",arrInjuries));
+        return divInjuries;
     }
 
     //*** Render Team Compare Tab */
-    funcRenderComponentTeamsTab() {
-        const divNoData = document.createElement("div");
-		divNoData.className = "bbw-nbagamewidget-nodata";
-		divNoData.innerText = "Coming Soon...";
-		return divNoData;
+    funcRenderComponentTeamStatsTab() {
+        //*** Determine Primary and Secondary Teams */
+        const objPrimaryTeam = this.funcGetPrimaryTeam();
+        const objSecondaryTeam = this.funcGetSecondaryTeam();
+
+        //*** Build Comparison Labels */
+        const arrLabels = [
+            "Field Goals",
+            "3 Pointers",
+            "Free Throws",
+            "Rebounds",
+            "O-Rebounds",
+            "D-Rebounds",
+            "Assists",
+            "Steals",
+            "Blocks",
+            "Turn Overs",
+            "Fouls"
+        ]
+
+        //*** Create Compare Array */
+        const arrPrimaryStats = objPrimaryTeam.funcGetTeamStats();
+        const arrSecondaryStats = objSecondaryTeam.funcGetTeamStats();
+        let arrCompare = [];
+        for(let i=0; i<arrLabels.length;i++) {
+            arrCompare.push([
+                arrPrimaryStats[i],
+                arrLabels[i],
+                arrSecondaryStats[i]
+            ]);
+        }
+
+
+        //*** Create Team Stats Tab */
+        const divTeamStats = document.createElement("div");
+        divTeamStats.className = "bbw-nbagamewidget-teamstats";
+        divTeamStats.appendChild(NBAGameWidget.funcRenderComparison("Team Stats",arrCompare));
+        return divTeamStats;
     }
 
     //*** Render No Data */
@@ -1030,7 +1109,7 @@ class NBAGameWidget {
         //*** Create Title */
         const divTitle = document.createElement("div");
         divTitle.className = "bbw-nbagamewidget-compare-title";
-        divTitle.innerHTML = "Team Leaders";
+        divTitle.innerHTML = pstrTitle;
         divCompare.appendChild(divTitle);
 
         //*** Loop Through and Create Rows */
@@ -1084,44 +1163,44 @@ class NBAGameWidget {
     //*** NBA Team Logo Mappings
     static mapNBAdotComTeamIDs = {
         // Eastern Conference
-        "ATL": 1610612737, // Atlanta Hawks
-        "BOS": 1610612738, // Boston Celtics  
-        "BKN": 1610612751, // Brooklyn Nets
-        "CHA": 1610612766, // Charlotte Hornets
-        "CHI": 1610612741, // Chicago Bulls
-        "CLE": 1610612739, // Cleveland Cavaliers
-        "DET": 1610612765, // Detroit Pistons
-        "IND": 1610612754, // Indiana Pacers
-        "MIA": 1610612748, // Miami Heat
-        "MIL": 1610612749, // Milwaukee Bucks
-        "NY": 1610612752,  // New York Knicks
-        "NYK": 1610612752, // New York Knicks (alternate)
-        "ORL": 1610612753, // Orlando Magic
-        "PHI": 1610612755, // Philadelphia 76ers
-        "TOR": 1610612761, // Toronto Raptors
-        "WAS": 1610612764, // Washington Wizards
-        "WSH": 1610612764, // Washington Wizards (alternate)
+        "atl": 1610612737, // Atlanta Hawks
+        "bos": 1610612738, // Boston Celtics  
+        "bkn": 1610612751, // Brooklyn Nets
+        "cha": 1610612766, // Charlotte Hornets
+        "chi": 1610612741, // Chicago Bulls
+        "cle": 1610612739, // Cleveland Cavaliers
+        "det": 1610612765, // Detroit Pistons
+        "ind": 1610612754, // Indiana Pacers
+        "mia": 1610612748, // Miami Heat
+        "mil": 1610612749, // Milwaukee Bucks
+        "ny": 1610612752,  // New York Knicks
+        "nyk": 1610612752, // New York Knicks (alternate)
+        "orl": 1610612753, // Orlando Magic
+        "phi": 1610612755, // Philadelphia 76ers
+        "tor": 1610612761, // Toronto Raptors
+        "was": 1610612764, // Washington Wizards
+        "wsh": 1610612764, // Washington Wizards (alternate)
 
         // Western Conference
-        "DAL": 1610612742, // Dallas Mavericks
-        "DEN": 1610612743, // Denver Nuggets
-        "GS": 1610612744,  // Golden State Warriors
-        "GSW": 1610612744, // Golden State Warriors (alternate)
-        "HOU": 1610612745, // Houston Rockets
-        "LAC": 1610612746, // Los Angeles Clippers
-        "LAL": 1610612747, // Los Angeles Lakers
-        "MEM": 1610612763, // Memphis Grizzlies
-        "MIN": 1610612750, // Minnesota Timberwolves
-        "NO": 1610612740,  // New Orleans Pelicans
-        "NOP": 1610612740, // New Orleans Pelicans (alternate)
-        "OKC": 1610612760, // Oklahoma City Thunder
-        "PHX": 1610612756, // Phoenix Suns
-        "POR": 1610612757, // Portland Trail Blazers
-        "SAC": 1610612758, // Sacramento Kings
-        "SA": 1610612759,  // San Antonio Spurs
-        "SAS": 1610612759, // San Antonio Spurs (alternate)
-        "UTA": 1610612762,  // Utah Jazz
-        "UTAH": 1610612762  // Utah Jazz (alternate)
+        "dal": 1610612742, // Dallas Mavericks
+        "den": 1610612743, // Denver Nuggets
+        "gs": 1610612744,  // Golden State Warriors
+        "gsw": 1610612744, // Golden State Warriors (alternate)
+        "hou": 1610612745, // Houston Rockets
+        "lac": 1610612746, // Los Angeles Clippers
+        "lal": 1610612747, // Los Angeles Lakers
+        "mem": 1610612763, // Memphis Grizzlies
+        "min": 1610612750, // Minnesota Timberwolves
+        "no": 1610612740,  // New Orleans Pelicans
+        "nop": 1610612740, // New Orleans Pelicans (alternate)
+        "okc": 1610612760, // Oklahoma City Thunder
+        "phx": 1610612756, // Phoenix Suns
+        "por": 1610612757, // Portland Trail Blazers
+        "sac": 1610612758, // Sacramento Kings
+        "sa": 1610612759,  // San Antonio Spurs
+        "sas": 1610612759, // San Antonio Spurs (alternate)
+        "uta": 1610612762,  // Utah Jazz
+        "utah": 1610612762  // Utah Jazz (alternate)
     };
 }
 
@@ -1149,6 +1228,27 @@ class TeamStats {
         this.arrStarterStats = [];
         this.arrBenchStats = [];
         this.arrDNPStats = [];
+
+        //*** Initialize Team Stat Info */
+        this.arrTeamStats = {
+            intFGM : 0,
+            intFGA : 0,
+            int3PM : 0,
+            int3PA : 0,
+            intFTM : 0,
+            intFTA : 0,
+            intREB : 0,
+            intOREB : 0,
+            intDREB : 0,
+            intAST : 0,
+            intSTL : 0,
+            intBLK : 0,
+            intTO : 0,
+            intPF : 0,
+        };
+
+        //*** Initialize Injury Info */
+        this.arrInjuries = []
     }
 
     //*** Handle Add Player Stats */
@@ -1179,6 +1279,23 @@ class TeamStats {
             this.strReboundLeader = pobjPlayerStat.strName;
             this.intReboundLeaderRebounds = pobjPlayerStat.intREB;
         }
+
+        //*** Update Team Totals */
+        const safeInt = (value) => Number.isInteger(value) ? value : 0;
+        this.arrTeamStats.intFGM += safeInt(pobjPlayerStat.intFGM);
+        this.arrTeamStats.intFGA += safeInt(pobjPlayerStat.intFGA);
+        this.arrTeamStats.int3PM += safeInt(pobjPlayerStat.int3PM);
+        this.arrTeamStats.int3PA += safeInt(pobjPlayerStat.int3PA);
+        this.arrTeamStats.intFTM += safeInt(pobjPlayerStat.intFTM);
+        this.arrTeamStats.intFTA += safeInt(pobjPlayerStat.intFTA);
+        this.arrTeamStats.intREB += safeInt(pobjPlayerStat.intREB);
+        this.arrTeamStats.intOREB += safeInt(pobjPlayerStat.intOREB);
+        this.arrTeamStats.intDREB += safeInt(pobjPlayerStat.intDREB);
+        this.arrTeamStats.intAST += safeInt(pobjPlayerStat.intAST);
+        this.arrTeamStats.intSTL += safeInt(pobjPlayerStat.intSTL);
+        this.arrTeamStats.intBLK += safeInt(pobjPlayerStat.intBLK);
+        this.arrTeamStats.intTO += safeInt(pobjPlayerStat.intTO);
+        this.arrTeamStats.intPF += safeInt(pobjPlayerStat.intPF);
     }
 
     //*** Sort Player Stats by Minutes Played */
@@ -1217,9 +1334,38 @@ class TeamStats {
         return arrCombinedPlayerStats;
     }
 
+    //*** Get Formatted Team Stats */
+    funcGetTeamStats() {
+        //*** Setup % Fields */
+        const intFGPerc = this.arrTeamStats.intFGA > 0 ? Math.round((this.arrTeamStats.intFGM / this.arrTeamStats.intFGA) * 100) : 0;
+        const int3PPerc = this.arrTeamStats.int3PA > 0 ? Math.round((this.arrTeamStats.int3PM / this.arrTeamStats.int3PA) * 100) : 0;
+        const intFTPerc = this.arrTeamStats.intFTA > 0 ? Math.round((this.arrTeamStats.intFTM / this.arrTeamStats.intFTA) * 100) : 0;
+
+        return [
+            this.arrTeamStats.intFGM + "/" + this.arrTeamStats.intFGA + " (" + intFGPerc + "%)",
+            this.arrTeamStats.int3PM + "/" + this.arrTeamStats.int3PA + " (" + int3PPerc + "%)",
+            this.arrTeamStats.intFTM + "/" + this.arrTeamStats.intFTA + " (" + intFTPerc + "%)",
+            this.arrTeamStats.intREB,
+            this.arrTeamStats.intOREB,
+            this.arrTeamStats.intDREB,
+            this.arrTeamStats.intAST,
+            this.arrTeamStats.intSTL,
+            this.arrTeamStats.intBLK,
+            this.arrTeamStats.intTO,
+            this.arrTeamStats.intPF
+        ]
+    }
+
     //*** Get Period Table Data */
     funcGetPeriodTable() {
-        const periodData = this.arrPeriodScore.length > 0 ? this.arrPeriodScore : ["0", "0", "0", "0"];
+        // Start with existing period scores or empty array
+        const periodData = this.arrPeriodScore.length > 0 ? [...this.arrPeriodScore] : [];
+
+        // Pad with "-" to ensure at least 4 quarters
+        while (periodData.length < 4) {
+            periodData.push("-");
+        }
+
         return [[this.strTeamName, ...periodData, this.intScore]];
     }
 
