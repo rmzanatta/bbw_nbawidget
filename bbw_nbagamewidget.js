@@ -209,7 +209,7 @@ class NBAGameWidget {
         const strStorageType = "local";
         const strStorageKey = "game-data-espn";
         const strStorageVersion = "1"
-        const intCacheTime = 600000; //*** 1 minute */
+        const intCacheTime = 60000; //*** 1 minute */
 
         //*** Check storage to see if API response is cached */
         const jsonCache = this.objDataManager.funcGetJSONFromStorage(strStorageType,strStorageKey);
