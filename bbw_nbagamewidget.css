@@ -345,12 +345,14 @@
 }
 
 .bbw-nbagamewidget-stickytable-key {
+    background: var(--bbw-palette-maincontent);
     position: sticky;
     left: 0;
     text-align:left;
     z-index:2;
     white-space: nowrap;
-    background: var(--bbw-palette-maincontent);
+    padding-right:0.5em;
+    padding-left:10px;
 }
 
 .bbw-nbagamewidget-stickytable-content td:not(.bbw-nbagamewidget-stickytable-key),

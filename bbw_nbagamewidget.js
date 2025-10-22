@@ -16,11 +16,14 @@
 Globally Manages the NBA Game Widget
 */
 class NBAGameWidget {
-    constructor(pstrWidgetDiv, pstrStorageNamespace, pstrGameDetailIDType, pstrGameDetailID, pstrPrimaryTeam,pblnDebugMode = false) {
+    constructor(pstrWidgetDiv, pstrStorageNamespace, pstrAPISource, pstrAPIParameter, pstrPrimaryTeam,pblnDebugMode = false) {
         //*** Set Debug Mode */
         this.blnDebugMode = pblnDebugMode
 
         //*** Set Widget Data */
+        this.strErrorCode = "";
+        this.blnLoadAttempted = false;
+        this.blnDataFound = false;
         this.blnDataLoaded = false;
         this.strWidgetDiv = pstrWidgetDiv;
         this.strPrimaryTeam = pstrPrimaryTeam;
@@ -38,8 +41,8 @@ class NBAGameWidget {
 		this.selectBoxScoreStyle = null;
 
         //*** Set Game Info Data */
-        this.strGameDetailIDType = pstrGameDetailIDType;
-        this.strGameDetailID = pstrGameDetailID
+        this.strAPISource = pstrAPISource;
+        this.strAPIParameter = pstrAPIParameter
 
         //*** Initialize Game Header Data */
         this.dtmGameDate = null;
@@ -73,22 +76,131 @@ class NBAGameWidget {
 
     //*** Load Game Data */
     async procLoadGameData() {
-        //*** Reset Data Loaded Flag */
+        //*** Reset Data Loaded Flags */
+        this.blnLoadAttempted = true;
+        this.blnDataFound = false;
         this.blnDataLoaded = false;
 
         //*** Load Game Data */
         if(this.funcAllowWidgetRun()) {
             let jsonGameData = null;
-            switch (this.strGameDetailIDType.toLowerCase()) {
+            switch (this.strAPISource.toLowerCase()) {
                 case "espn":
-                    jsonGameData = await this.funcGetGameDetailESPN(this.strGameDetailID);
-                    this.procParseGameDataESPN(jsonGameData)
+                    /*** Parse Game ID from parameter */
+                    const strESPNGameID = await this.funcGetGameIDFromParameterESPN(this.strAPIParameter);
+
+                    /*** Fetch Game Data */
+                    if (!strESPNGameID) {
+                        this.strErrorCode = "No Games Found for: " + this.strAPIParameter;
+                    } else {
+                        jsonGameData = await this.funcGetGameDetailESPN(strESPNGameID);
+                    }
+
+                    /*** If JSON Data is found, process  */
+                    if(!jsonGameData) {
+                        this.blnNoDataFound = true;
+                    } else {
+                        this.procParseGameDataESPN(jsonGameData)
+                    }
+
+                    //*** Break out of switch
                     break;
                 default:
-                    console.error(`NBAGameWidget - Unknown Game ID Type for data fetch: ${this.strGameDetailIDType}`);
+                    console.error(`NBAGameWidget - Unknown Game ID Type for data fetch: ${this.strAPISource}`);
                     return null;
             }
         }
+    }
+
+    //*** Get GAme ID From Parameter ESPN */
+    async funcGetGameIDFromParameterESPN(pstrAPIParameter) {
+        //*** Set storage type,  key, and version for retrieval */
+        const strStorageType = "local";
+        const strStorageKey = "game-date-to-id-espn";
+
+        //*** Check if Numeric */
+        if (!isNaN(pstrAPIParameter)) {
+            return pstrAPIParameter;
+        }
+
+        //*** Check if it's a date value YYYY-MM-DD format*/
+        const objDateRegex = /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+        const objMatch = pstrAPIParameter.match(objDateRegex);
+        if (!objMatch) {
+            ///*** If it doesn't match a date param, return blank */
+            return "";
+        }
+
+        //*** Extract Date Values */
+        const strParsedDate = objMatch[1] + objMatch[2] + objMatch[3];
+
+        //*** Check if we've stored this game ID in our local storage */
+        const jsonCache = this.objDataManager.funcGetJSONFromStorage(strStorageType,strStorageKey);
+        if (jsonCache) {
+            //*** Cache initialized before.  Process */
+            for (let i = 0; i < jsonCache.length; i++) {
+                //*** Check if it's our game.  If it is, use the ID and update the accessed date */
+                if (jsonCache[i].cacheDateParam === strParsedDate) {
+                    return jsonCache[i].cacheEventID;
+                }
+            }
+        }
+
+        //*** Get Scoreboard for this date */
+        const strUrl = `https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${strParsedDate}`;
+        const jsonRawJSON = await this.objAPIManager.funcGetAPIData(strUrl, "json");
+
+        //*** Return blank if fetch failed */
+        if(!jsonRawJSON) {
+            return "";
+        }
+
+        //*** Ensure API has returned an events list */
+        const arrEvents = jsonRawJSON.events;
+        if (!arrEvents || arrEvents.length === 0) {
+            return "";
+        }
+
+        //*** Find the Spurs game in the events array
+        let strEventID = "";
+        for (let i = 0; i < arrEvents.length; i++) {
+            if (arrEvents[i].name && arrEvents[i].name.toLowerCase().includes("spurs")) {
+                strEventID = arrEvents[i].id;
+                break;
+            }
+        }
+
+        //*** If no Spurs game found, return empty
+        if (!strEventID) {
+            return "";
+        }
+
+        //*** Calculate cutoff date (10 days ago)
+        const dtmCutoffDate = new Date();
+        dtmCutoffDate.setDate(dtmCutoffDate.getDate() - 10);
+
+        //*** Filter cache to remove entries older than 10 days
+        let jsonUpdatedCache = [];
+        if (jsonCache && Array.isArray(jsonCache)) {
+            jsonUpdatedCache = jsonCache.filter(item => {
+                const dtmFetchDate = new Date(item.fetchDate);
+                return dtmFetchDate >= dtmCutoffDate;
+            });
+        }
+
+        //*** Create and append new cache entry
+        const objNewCacheEntry = {
+            fetchDate: new Date().toISOString(),
+            cacheDateParam: strParsedDate,
+            cacheEventID: strEventID
+        };
+        jsonUpdatedCache.push(objNewCacheEntry);
+
+        //*** Save updated cache to local storage
+        this.objDataManager.procSaveJSONToStorage(strStorageType, strStorageKey, jsonUpdatedCache);
+
+        //*** Return the event ID
+        return strEventID;
     }
 
     // Get Game Detail from ESPN
@@ -100,16 +212,16 @@ class NBAGameWidget {
         const intCacheTime = 600000; //*** 1 minute */
 
         //*** Check storage to see if API response is cached */
-        const jsonData = this.objDataManager.funcGetJSONFromStorage(strStorageType,strStorageKey);
-        if (jsonData) {
+        const jsonCache = this.objDataManager.funcGetJSONFromStorage(strStorageType,strStorageKey);
+        if (jsonCache) {
             //*** Check if same game and version
-            if(jsonData.cacheKey === pstrEventId && jsonData.cacheVersion === strStorageVersion) {
-                /*** Same data, check if refetching is allowed */
+            if(jsonCache.cacheKey === pstrEventId && jsonCache.cacheVersion === strStorageVersion) {
+                /*** Same da ta, check if refetching is allowed */
                 const dtmCurrentTimeStamp = new Date();
-                const dtmRefetchTimeStamp = new Date(jsonData.refetchDate);
+                const dtmRefetchTimeStamp = new Date(jsonCache.refetchDate);
                 if(dtmCurrentTimeStamp < dtmRefetchTimeStamp) {
                     //*** No refetching allowed, return cached data */
-                    return jsonData.cacheData;
+                    return jsonCache.cacheData;
                 }
             }
 
@@ -122,6 +234,13 @@ class NBAGameWidget {
 
         //*** Fetch data using API manager and store in cache
         const jsonRawJSON = await this.objAPIManager.funcGetAPIData(strUrl, "json");
+
+        //*** Return null if fetch failed */
+        if(!jsonRawJSON) {
+            return null;
+        }
+
+        //*** Store successful fetch in cache */
         const dtmFetchDate = new Date();
         const dtmRefetchDate = new Date(dtmFetchDate.getTime() + intCacheTime);
         const jsonCacheData = {
@@ -135,6 +254,10 @@ class NBAGameWidget {
 
         //*** Return Results
         return jsonRawJSON;
+    }
+
+    async funcGetEventIDFromCode(pstrDateString) {
+        //*** First Check if we have schedule data loaded 
     }
 
     //*** Process Data ESPN */
@@ -689,11 +812,10 @@ class NBAGameWidget {
         const divNoData = document.createElement("div");
 		divNoData.className = "bbw-nbagamewidget-nodata";
 
-        //*** Determine if Reason is not logged in */
-		let strReason = "";
+        //*** Determine No Data Text for errors */
 		if (!this.funcAllowWidgetRun()) { 
 			divNoData.innerText = "Must be logged in to use widget";
-		} else {
+		} else if (!this.blnLoadAttempted) {
 			divNoData.innerText =  "In order to prevent unecessary calls\nwidget must be manually loaded\n\n";
             const divRefreshButton = document.createElement("div");
             divRefreshButton.className = "bbw-nbagamewidget-button"
@@ -704,7 +826,9 @@ class NBAGameWidget {
                 this.procOnForceRefresh();
             });
             divNoData.appendChild(divRefreshButton);
-		}
+        } else {
+            divNoData.innerText = "Error Loading Widget.  Please check parameters\n" + this.strErrorCode
+        }
 
 		//*** Return */
 		return divNoData;
@@ -1444,14 +1568,14 @@ Main Hook to Replace Placeholder DIV tag
         }
 
         //***Extract Parameters
-        const strGameDetailIDType = divWidgetContainer.dataset.gameDetailIdtype || "";
-        const strGameDetailID = divWidgetContainer.dataset.gameDetailId || "";
+        const strAPISource = divWidgetContainer.dataset.apiSource || "";
+        const strAPIParameter = divWidgetContainer.dataset.apiParameter || "";
         const strStorageNamespace = divWidgetContainer.dataset.storageNamespace || "bbw-nbawidget";
         const blnDebugMode = divWidgetContainer.dataset.debugMode === "true" || false;
         const strPrimaryTeam = divWidgetContainer.dataset.primaryTeam || "";
 
         //*** Initialize widget with parameters from HTML
-        const objNBAGameWidget = new NBAGameWidget("bbw-nbagamewidget-container", strStorageNamespace, strGameDetailIDType, strGameDetailID, strPrimaryTeam, blnDebugMode);
+        const objNBAGameWidget = new NBAGameWidget("bbw-nbagamewidget-container", strStorageNamespace, strAPISource, strAPIParameter, strPrimaryTeam, blnDebugMode);
         (async () => {
             //await objNBAGameWidget.procLoadGameData();
             objNBAGameWidget.procRenderWidgetContainer();
