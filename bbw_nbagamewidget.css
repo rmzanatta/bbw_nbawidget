@@ -43,6 +43,7 @@
     border-width:1px;
 	border-radius:10px;
 	padding:10px;
+    transition: max-width 0.5s ease;
 }	
 
 .bbw-nbagamewidget-nodata {
@@ -99,7 +100,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap:6px;
+	gap:10px;
 	margin-right:6px;
 }
 
@@ -114,7 +115,7 @@
 
 .bbw-nbagamewidget-header-button svg:hover {
 	fill:var(--bbw-color-header-icon-hover-fill);
-    transform: rotate(45deg) scale(1.15);
+    transform: scale(1.15);
 }
 
 /*******************************************************************/

@@ -24,7 +24,6 @@ class NBAGameWidget {
         this.strErrorCode = "";
         this.blnDataFetched = false;
         this.dtmLastFetchDate = null;
-        
         this.blnDataFound = false;
         this.blnDataLoaded = false;
         this.strWidgetDiv = pstrWidgetDiv;
@@ -35,7 +34,14 @@ class NBAGameWidget {
         this.strBoxScoreFullOrCompactOverride = "";
         this.arrBroadcasts = [];
 
+        //*** Widget Settings */
+        this.strWindowSize = "";
+        this.divWidgetElement = null;
+        this.divFullScreenIconElement = null;
+        this.divCompactScreenIconElement = null;
+
 		//*** Setup Interactive Elements (these are tags that require event handling)
+        this.divContainer = null;
 		this.tabSummary = null;
 		this.tabBoxScore = null;
         this.tabTeamStats = null;
@@ -69,7 +75,53 @@ class NBAGameWidget {
         this.objAPIManager.procSetDebugMode(pblnDebugMode);
         this.objDataManager = new StorageManager(pstrStorageNamespace);
         this.objDataManager.procSetDebugMode(pblnDebugMode);
+
+		//*** Initialize settings values
+		this.objPreferences = this.funcLoadPreferences();
     }
+
+    //*** Load User Preferences */
+    funcLoadPreferences() {
+		//*** Set the Defaults 
+		const defaults = this.funcDefaultSettings()
+
+		//*** Try to Load from Cached Memory
+		try {
+			const objStoredPrefs = this.objDataManager.funcGetJSONFromStorage("local", "user_preferences")
+			if (objStoredPrefs) {
+				// Merge but filter out null/undefined values from stored
+				const merged = { ...defaults };
+				for (const key in objStoredPrefs) {
+					if (objStoredPrefs[key] != null) {  // != null checks for both null and undefined
+						merged[key] = objStoredPrefs[key];
+					}
+				}
+				return merged;
+			}
+		} catch (error) {
+			console.error("NBAGameWidget - Error loading preferences:", error);
+		}
+
+		//*** Default Defaults if nothing was loaded
+		return defaults;
+	}
+
+	//*** Save preferences to localStorage
+	procSavePreferences() {
+		try {
+			//*** Try to save user preferences to local storage
+			this.objDataManager.procSaveJSONToStorage("local", "user_preferences", this.objPreferences);
+		} catch (error) {
+			console.error("NBAWidget - Error saving preferences:", error);
+		}
+	}
+
+	//*** Get Default Settings
+	funcDefaultSettings() {
+		return {
+			windowSize: "full"
+		};
+	}
 
     //*** Check if Widget is allowed to run */
     funcAllowWidgetRun() {
@@ -450,6 +502,7 @@ class NBAGameWidget {
 
     //*** Render Widget Container */
     procRenderWidgetContainer() {
+        console.log("re-render");
         //*** Initialize Widget Container
         const divNBAGameWidgetContainer = document.querySelector('#' + this.strWidgetDiv);
         divNBAGameWidgetContainer.innerHTML = "";
@@ -477,6 +530,7 @@ class NBAGameWidget {
         //*** Initialize Widget */
         const divNBAGameWidget = document.createElement("div");
         divNBAGameWidget.className = "bbw-nbagamewidget"
+        this.divWidgetElement = divNBAGameWidget;
 
         //*** Add Header */
         divNBAGameWidget.appendChild(this.funcRenderComponentHeader());
@@ -512,6 +566,9 @@ class NBAGameWidget {
             //*** Append to Container */
             divNBAGameWidgetContainer.appendChild(divNBAGameWidget);
         }
+
+        //*** Set Default Window Size */
+        this.procChangeWindowSize();
     }
 
     //*** Render Widget Header */  
@@ -525,18 +582,56 @@ class NBAGameWidget {
         const divTeamLogo = document.createElement("div");
         divTeamLogo.className = "bbw-nbagamewidget-header-logo";
 
-        //*** Build Widget Buttons */
-        const divHeaderButtons = document.createElement("div");
+        //*** Build Refresh Button */
 		const divRefreshButton = document.createElement("div");
-		divHeaderButtons.className = "bbw-nbagamewidget-header-buttongroup";
-		divRefreshButton.className = "bbw-nbagamewidget-header-button";
+        divRefreshButton.className = "bbw-nbagamewidget-header-button";
         divRefreshButton.innerHTML = NBAGameWidget.funcRenderRefreshIcon();
-        divHeaderButtons.appendChild(divRefreshButton);
+
+        //*** Build Toggle Full Screen Button */
+        const divFullScreenIcon = document.createElement("div");
+        const divCompactScreenIcon = document.createElement("div");
+        divFullScreenIcon.className = "bbw-nbagamewidget-header-button";
+        divCompactScreenIcon.className = "bbw-nbagamewidget-header-button";
+        divFullScreenIcon.innerHTML = NBAGameWidget.funcRenderFullScreenIcon();
+        divCompactScreenIcon.innerHTML = NBAGameWidget.funcRenderCollapsedScreenIcon();
+        this.divFullScreenIconElement = divFullScreenIcon;
+        this.divCompactScreenIconElement = divCompactScreenIcon;
 
 		//*** Add click refresh event
 		divRefreshButton.addEventListener('click', () => {
 			this.procOnForceRefresh();
 		});
+
+        //*** Add click the full/compact toggle button  */
+		divFullScreenIcon.addEventListener('click', () => {
+            //*** Set New Preference */
+            this.objPreferences.windowSize = "full";
+
+            //*** Update Toggle Icon */
+            this.procChangeWindowSize();
+
+            //*** Save Preferences */
+            this.procSavePreferences();
+        });
+
+        //*** Add click the full/compact toggle button  */
+		divCompactScreenIcon.addEventListener('click', () => {
+            //*** Set New Preference */
+            this.objPreferences.windowSize = "compact"
+
+            //*** Update Toggle Icon */
+            this.procChangeWindowSize();
+
+            //*** Save Preferences */
+            this.procSavePreferences();
+        });
+
+        //*** Build Header Button Row */
+        const divHeaderButtons = document.createElement("div");
+        divHeaderButtons.className = "bbw-nbagamewidget-header-buttongroup";
+        divHeaderButtons.appendChild(divRefreshButton);
+        divHeaderButtons.appendChild(divFullScreenIcon);
+        divHeaderButtons.appendChild(divCompactScreenIcon);
 
 		//*** Build Header Container
 		const divHeaderContainer = document.createElement("div");
@@ -1000,6 +1095,19 @@ class NBAGameWidget {
 		return divNoData;
     }
 
+    //*** Change the window size */
+    procChangeWindowSize() {
+        if(this.objPreferences.windowSize === "full") {
+            this.divWidgetElement.style.maxWidth = "100%";
+            this.divFullScreenIconElement.style.display = "none ";
+            this.divCompactScreenIconElement.style.display = "inline";
+        } else {
+            this.divWidgetElement.style.maxWidth = "700px";
+            this.divFullScreenIconElement.style.display = "inline";
+            this.divCompactScreenIconElement.style.display = "none ";
+        }  
+    }
+
     //*** Get Primary and Secondary Team Display Logic */
     funcGetPrimaryTeam() {
         if(this.objAwayTeam.strTeamCode.toLowerCase() === this.strPrimaryTeam.toLowerCase()) {
@@ -1245,6 +1353,25 @@ class NBAGameWidget {
 	static funcRenderRefreshIcon() {
 		return `<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 118.04 122.88"><path d="M16.08,59.26A8,8,0,0,1,0,59.26a59,59,0,0,1,97.13-45V8a8,8,0,1,1,16.08,0V33.35a8,8,0,0,1-8,8L80.82,43.62a8,8,0,1,1-1.44-15.95l8-.73A43,43,0,0,0,16.08,59.26Zm22.77,19.6a8,8,0,0,1,1.44,16l-10.08.91A42.95,42.95,0,0,0,102,63.86a8,8,0,0,1,16.08,0A59,59,0,0,1,22.3,110v4.18a8,8,0,0,1-16.08,0V89.14h0a8,8,0,0,1,7.29-8l25.31-2.3Z"/></svg>`
 	}
+
+    //*** Full Screen Icon */
+    static funcRenderFullScreenIcon() {
+        return `<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" 
+	 viewBox="0 0 512 512">
+<path d="M93.1,139.6l46.5-46.5L93.1,46.5L139.6,0H0v139.6l46.5-46.5L93.1,139.6z M93.1,372.4l-46.5,46.5L0,372.4V512h139.6
+	l-46.5-46.5l46.5-46.5L93.1,372.4z M372.4,139.6H139.6v232.7h232.7V139.6z M325.8,325.8H186.2V186.2h139.6V325.8z M372.4,0
+	l46.5,46.5l-46.5,46.5l46.5,46.5l46.5-46.5l46.5,46.5V0H372.4z M418.9,372.4l-46.5,46.5l46.5,46.5L372.4,512H512V372.4l-46.5,46.5
+	L418.9,372.4z"/>
+</svg>`;
+    }
+
+    //*** Collapsed Screen Icon */
+    static funcRenderCollapsedScreenIcon() {
+        return `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+	<path d="M8,26a2,2,0,0,0-2,2.3A2.1,2.1,0,0,0,8.1,30h7.1L4.7,40.5a2,2,0,0,0-.2,2.8A1.8,1.8,0,0,0,6,44a2,2,0,0,0,1.4-.6L18,32.8v7.1A2.1,2.1,0,0,0,19.7,42,2,2,0,0,0,22,40V28a2,2,0,0,0-2-2Z"/>
+	<path d="M43.7,4.8a2,2,0,0,0-3.1-.2L30,15.2V8.1A2.1,2.1,0,0,0,28.3,6,2,2,0,0,0,26,8V20a2,2,0,0,0,2,2H39.9A2.1,2.1,0,0,0,42,20.3,2,2,0,0,0,40,18H32.8L43.4,7.5A2.3,2.3,0,0,0,43.7,4.8Z"/>
+</svg>`;
+    }
 
     //*** NBA Team Logo Mappings
     static mapNBAdotComTeamIDs = {
