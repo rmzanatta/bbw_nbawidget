@@ -349,8 +349,21 @@
 /* Injuries Tab */
 /*******************************************************************/
 .bbw-nbagamewidget-injury {
-    background: var(--bbw-color-boxscore-bg);
-    border-color: var(--bbw-color-boxscore-border);
+    background: var(--bbw-color-injury-bg);
+    border-color: var(--bbw-color-injury-border);
+    margin-top:10px;
+    padding: 10px;
+    border-style:solid;
+    border-width:1px;
+    border-radius:10px;
+}
+
+/*******************************************************************/
+/* Injuries Tab */
+/*******************************************************************/
+.bbw-nbagamewidget-broadcast {
+    background: var(--bbw-color-broadcast-bg);
+    border-color: var(--bbw-color-broadcast-border);
     margin-top:10px;
     padding: 10px;
     border-style:solid;
@@ -509,6 +522,23 @@
 
 /* Widget Theme Definition */
 .bbw-nbagamewidget-container.darkPaletteSpurs {
+	/******************************************/
+	/* Component Palette */
+	/******************************************/
+	--bbw-palette-highlight: hsl(0, 0%, 20%); 
+	--bbw-palette-maincontent: hsl(0, 0%, 15%);  
+	--bbw-palette-subcontent: hsl(0, 0%, 17%); 
+	--bbw-palette-mutedcontent: hsl(0, 0%, 10%); 
+	--bbw-palette-mainedges: hsl(0, 0%, 35%); 
+	--bbw-palette-shadow: hsl(0, 0%, 90%); 
+	--bbw-palette-text: hsl(0, 0%, 80%); 
+	--bbw-palette-mutedtext: hsl(0, 0%, 70%);
+	--bbw-palette-headertext: hsl(0, 0%, 100%); 
+	--bbw-palette-contrasttext: hsl(0, 0%, 10%);
+	
+	/*** Custom Header for Dark Theme */
+	--bbw-color-header-bg: linear-gradient(0deg, rgb(26, 26, 26), rgb(38, 38, 38));
+	--bbw-color-header-text: hsl(0,0%,100%);
     
 }
 
@@ -586,6 +616,10 @@
     /*** Injury Colors ***/
     --bbw-color-injury-bg: var(--bbw-palette-maincontent);
     --bbw-color-injury-border: var(--bbw-palette-mainedges);
+
+    /*** Broadcast Colors ***/
+    --bbw-color-broadcast-bg: var(--bbw-palette-maincontent);
+    --bbw-color-broadcast-border: var(--bbw-palette-mainedges);
 
     /*** Team Stats Colors ***/
     --bbw-color-teamstats-bg: var(--bbw-palette-maincontent);

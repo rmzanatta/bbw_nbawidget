@@ -22,7 +22,9 @@ class NBAGameWidget {
 
         //*** Set Widget Data */
         this.strErrorCode = "";
-        this.blnLoadAttempted = false;
+        this.blnDataFetched = false;
+        this.dtmLastFetchDate = null;
+        
         this.blnDataFound = false;
         this.blnDataLoaded = false;
         this.strWidgetDiv = pstrWidgetDiv;
@@ -31,12 +33,14 @@ class NBAGameWidget {
         this.strBoxScorePrimaryOrSecondary = "primary";
         this.strBoxScoreFullOrCompact = "compact";
         this.strBoxScoreFullOrCompactOverride = "";
+        this.arrBroadcasts = [];
 
 		//*** Setup Interactive Elements (these are tags that require event handling)
 		this.tabSummary = null;
 		this.tabBoxScore = null;
         this.tabTeamStats = null;
         this.tabInjury = null;
+        this.tabBroadcast = null;
 		this.selectBoxScoreTeam = null;
 		this.selectBoxScoreStyle = null;
 
@@ -80,6 +84,8 @@ class NBAGameWidget {
         this.blnLoadAttempted = true;
         this.blnDataFound = false;
         this.blnDataLoaded = false;
+        this.blnDataFetched = false;
+        this.dtmLastFetchDate = null;
 
         //*** Load Game Data */
         if(this.funcAllowWidgetRun()) {
@@ -101,6 +107,11 @@ class NBAGameWidget {
                         this.blnNoDataFound = true;
                     } else {
                         this.procParseGameDataESPN(jsonGameData)
+                    }
+
+                    /*** If Data was loaded successfully and new fetch, store in cache */
+                    if(this.blnDataLoaded && this.blnDataFetched) {
+                        this.procCacheGameDetailESPN(strESPNGameID, jsonGameData);
                     }
 
                     //*** Break out of switch
@@ -209,7 +220,6 @@ class NBAGameWidget {
         const strStorageType = "local";
         const strStorageKey = "game-data-espn";
         const strStorageVersion = "1"
-        const intCacheTime = 60000; //*** 1 minute */
 
         //*** Check storage to see if API response is cached */
         const jsonCache = this.objDataManager.funcGetJSONFromStorage(strStorageType,strStorageKey);
@@ -221,6 +231,7 @@ class NBAGameWidget {
                 const dtmRefetchTimeStamp = new Date(jsonCache.refetchDate);
                 if(dtmCurrentTimeStamp < dtmRefetchTimeStamp) {
                     //*** No refetching allowed, return cached data */
+                    this.dtmLastFetchDate = new Date(jsonCache.fetchDate);
                     return jsonCache.cacheData;
                 }
             }
@@ -234,30 +245,16 @@ class NBAGameWidget {
 
         //*** Fetch data using API manager and store in cache
         const jsonRawJSON = await this.objAPIManager.funcGetAPIData(strUrl, "json");
+        this.blnDataFetched = true;
+        this.dtmLastFetchDate = new Date();
 
         //*** Return null if fetch failed */
         if(!jsonRawJSON) {
             return null;
         }
 
-        //*** Store successful fetch in cache */
-        const dtmFetchDate = new Date();
-        const dtmRefetchDate = new Date(dtmFetchDate.getTime() + intCacheTime);
-        const jsonCacheData = {
-            cacheKey: pstrEventId,
-            cacheVersion: strStorageVersion,
-            fetchDate: dtmFetchDate.toISOString(),
-            refetchDate: dtmRefetchDate.toISOString(),
-            cacheData: jsonRawJSON
-        };
-        this.objDataManager.procSaveJSONToStorage(strStorageType, strStorageKey,jsonCacheData);
-
         //*** Return Results
         return jsonRawJSON;
-    }
-
-    async funcGetEventIDFromCode(pstrDateString) {
-        //*** First Check if we have schedule data loaded 
     }
 
     //*** Process Data ESPN */
@@ -340,7 +337,7 @@ class NBAGameWidget {
                     //*** Get Box Score Info */
                     const objStats = arrPlayerStats[j].stats
                     if (objStats && objStats.length > 0) {
-                        objPlayerStats.intMinutes = parseInt(objStats[0]);
+                        objPlayerStats.intMinutes = parseInt(objStats[0]) || 0;;
                         objPlayerStats.intPoints = parseInt(objStats[13]);
                         const arrFGStats = objStats[1].split("-");
                         objPlayerStats.intFGM = parseInt(arrFGStats[0]);
@@ -395,10 +392,54 @@ class NBAGameWidget {
             }
         }
 
+        //*** Extra Broadcast Information */
+        this.arrBroadcasts = [];
+        const arrBroadcasts = objCompetition.broadcasts || [];
+        for(let i=0; i<arrBroadcasts.length; i++) {
+            this.arrBroadcasts.push([
+                arrBroadcasts[i].media?.shortName ?? "",
+                arrBroadcasts[i].type?.shortName ?? "",
+                arrBroadcasts[i].market?.type ?? ""
+            ]);
+        }
+
         //*** Set Data Loaded Flag */
         this.blnDataLoaded = true;
     }
 
+    //*** Store data in cache and manage refresh allowance */
+    procCacheGameDetailESPN(pstrEventID, pjsonGameData) {
+        //*** Set storage type,  key, and version for retrieval */
+        const strStorageType = "local";
+        const strStorageKey = "game-data-espn";
+        const strStorageVersion = "1"
+        const intCacheTimeDefault = 3600000; //*** 1 hour */
+        const intCacheTimeLive = 60000; //*** 1 minutes */
+
+        /*** Determine Allowed Refetch Time */
+        let intCacheTime = 0;
+        const dtmFetchDate = this.dtmLastFetchDate;
+        const dtmOneHourBeforeGame = new Date(this.dtmGameDate.getTime() - 3600000); // 1 hour before
+        const dtmOneHourAfterGameStart = new Date(this.dtmGameDate.getTime() + 3600000);  // 1 hour after
+        if (this.blnLiveGame || (dtmFetchDate >= dtmOneHourBeforeGame && dtmFetchDate <= dtmOneHourAfterGameStart)) {
+            intCacheTime = intCacheTimeLive;
+        } else {
+            intCacheTime = intCacheTimeDefault;
+        }
+
+        //*** Store successful fetch in cache */
+        const dtmRefetchDate = new Date(dtmFetchDate.getTime() + intCacheTime);
+        const jsonCacheData = {
+            cacheKey: pstrEventID,
+            cacheVersion: strStorageVersion,
+            fetchDate: dtmFetchDate.toISOString(),
+            refetchDate: dtmRefetchDate.toISOString(),
+            cacheData: pjsonGameData
+        };
+        this.objDataManager.procSaveJSONToStorage(strStorageType, strStorageKey,jsonCacheData);
+    }
+
+    //*** Force Refresh Event */
 	procOnForceRefresh() {
 		//*** Reload data and re-render
 		(async () => {
@@ -412,6 +453,26 @@ class NBAGameWidget {
         //*** Initialize Widget Container
         const divNBAGameWidgetContainer = document.querySelector('#' + this.strWidgetDiv);
         divNBAGameWidgetContainer.innerHTML = "";
+
+	    //*** Set Global Theme to forum theme
+		let strTheme = "";
+        const htmlElement = document.documentElement;
+        const strForumExplicitScheme = htmlElement.getAttribute('data-color-scheme');
+        if (strForumExplicitScheme) {
+            strTheme = strForumExplicitScheme
+        } else {
+            const blnPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            strTheme = blnPrefersDark ? 'dark' : 'light';
+        }
+
+		//*** Set Color Scheme
+		if (strTheme === "dark") {
+			divNBAGameWidgetContainer.classList.remove("lightPaletteSpurs");
+			divNBAGameWidgetContainer.classList.add("darkPaletteSpurs");
+		} else {
+			divNBAGameWidgetContainer.classList.add("lightPaletteSpurs");
+			divNBAGameWidgetContainer.classList.remove("darkPaletteSpurs");
+		}
 
         //*** Initialize Widget */
         const divNBAGameWidget = document.createElement("div");
@@ -442,6 +503,9 @@ class NBAGameWidget {
                     break;
                 case "injury":
                     divNBAGameWidget.appendChild(this.funcRenderComponentInjuryTab());
+                    break;
+                case "broadcast":
+                    divNBAGameWidget.appendChild(this.funcRenderBroadcastsTab());
                     break;
             }
 
@@ -550,6 +614,11 @@ class NBAGameWidget {
             divScore.innerHTML = `${intPrimaryScore} - ${intSecondaryScore}`;
         }
 
+        //*** Create Game Countdown */
+        if(this.dtmGameDate > new Date()) {
+            
+        }
+
         //*** Create Status */
         const divStatus = document.createElement("div");
         divStatus.className = "bbw-nbagamewidget-header-score-status-status";
@@ -577,7 +646,7 @@ class NBAGameWidget {
             divLive.className = "bbw-nbagamewidget-header-live";
             divLive.innerText = "LIVE";
             divSummaryHeader.appendChild(divLive);
-        }
+        } 
         divSummaryHeader.appendChild(divScoreBanner);
         return divSummaryHeader;
     }
@@ -592,12 +661,14 @@ class NBAGameWidget {
 		this.tabBoxScore = this.funcRenderAndBuildTab("boxscore", "Box Score");
         this.tabTeamStats = this.funcRenderAndBuildTab("teamstats", "Team Stats");;
         this.tabInjury = this.funcRenderAndBuildTab("injury", "Injuries");;
+        this.tabBroadcast = this.funcRenderAndBuildTab("broadcast", "Broadcasts");;
 
 		//*** Build Rendered Tab Group
 		divTabGroup.appendChild(this.tabSummary);
 		divTabGroup.appendChild(this.tabBoxScore);
         divTabGroup.appendChild(this.tabTeamStats);
         divTabGroup.appendChild(this.tabInjury);
+        divTabGroup.appendChild(this.tabBroadcast);
         return divTabGroup;	
 	} 
 
@@ -885,6 +956,22 @@ class NBAGameWidget {
         return divTeamStats;
     }
 
+    //*** Render Team Compare Tab */
+    funcRenderBroadcastsTab() {
+        //*** Build Table Header */
+        const arrHeaders = [
+            "Source",
+            "Type",
+            "Market"
+        ]
+
+        //*** Create Team Stats Tab */
+        const divBroadcasts = document.createElement("div");
+        divBroadcasts.className = "bbw-nbagamewidget-broadcast";
+        divBroadcasts.appendChild(NBAGameWidget.funcRenderStickyTable("Broadcasts",arrHeaders,this.arrBroadcasts));
+        return divBroadcasts;
+    }
+
     //*** Render No Data */
     funcRenderComponentNoData() {
         //*** Create No Data Box */
@@ -1158,7 +1245,6 @@ class NBAGameWidget {
 	static funcRenderRefreshIcon() {
 		return `<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 118.04 122.88"><path d="M16.08,59.26A8,8,0,0,1,0,59.26a59,59,0,0,1,97.13-45V8a8,8,0,1,1,16.08,0V33.35a8,8,0,0,1-8,8L80.82,43.62a8,8,0,1,1-1.44-15.95l8-.73A43,43,0,0,0,16.08,59.26Zm22.77,19.6a8,8,0,0,1,1.44,16l-10.08.91A42.95,42.95,0,0,0,102,63.86a8,8,0,0,1,16.08,0A59,59,0,0,1,22.3,110v4.18a8,8,0,0,1-16.08,0V89.14h0a8,8,0,0,1,7.29-8l25.31-2.3Z"/></svg>`
 	}
-
 
     //*** NBA Team Logo Mappings
     static mapNBAdotComTeamIDs = {
@@ -1656,7 +1742,7 @@ class StorageManager {
         if (this.blnDebugMode) { console.log(`Data Manager - Local Storage cleared. Keys removed: ${intKeysRemoved}`); }
     }
 
-    // Save Data to Session Storage Cache
+    // Save Dkata to Session Storage Cache
     procSaveJSONToStorage(pstrStorageType, pstrStorageKey, pjsonData) {
         try {
             //*** Convert JSON to string for storage
