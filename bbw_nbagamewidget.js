@@ -16,7 +16,7 @@
 Globally Manages the NBA Game Widget
 */
 class NBAGameWidget {
-    constructor(pstrWidgetDiv, pstrStorageNamespace, pstrAPISource, pstrAPIParameter, pstrPrimaryTeam,pblnDebugMode = false) {
+    constructor(pstrWidgetDiv, pstrStorageNamespace, pstrAPISource, pstrAPIParameter, pstrPrimaryTeam,pstrGradesThread,pstrGradesLink, pblnDebugMode = false) {
         //*** Set Debug Mode */
         this.blnDebugMode = pblnDebugMode
 
@@ -33,6 +33,10 @@ class NBAGameWidget {
         this.strBoxScoreFullOrCompact = "compact";
         this.strBoxScoreFullOrCompactOverride = "";
         this.arrBroadcasts = [];
+
+        //*** Game grades link */
+        this.strGradesThread = pstrGradesThread
+        this.strGradesLink = pstrGradesLink;
 
         //*** Widget Settings */
         this.strWindowSize = "";
@@ -502,7 +506,6 @@ class NBAGameWidget {
 
     //*** Render Widget Container */
     procRenderWidgetContainer() {
-        console.log("re-render");
         //*** Initialize Widget Container
         const divNBAGameWidgetContainer = document.querySelector('#' + this.strWidgetDiv);
         divNBAGameWidgetContainer.innerHTML = "";
@@ -566,6 +569,9 @@ class NBAGameWidget {
             //*** Append to Container */
             divNBAGameWidgetContainer.appendChild(divNBAGameWidget);
         }
+
+        //*** Add game grades link
+        divNBAGameWidget.appendChild(this.funcRenderGameGrades());
 
         //*** Set Default Window Size */
         this.procChangeWindowSize();
@@ -707,11 +713,6 @@ class NBAGameWidget {
             divScore.innerHTML = `${intPrimaryScore} - <b>${intSecondaryScore}</b>`;
         } else {
             divScore.innerHTML = `${intPrimaryScore} - ${intSecondaryScore}`;
-        }
-
-        //*** Create Game Countdown */
-        if(this.dtmGameDate > new Date()) {
-            
         }
 
         //*** Create Status */
@@ -1077,7 +1078,7 @@ class NBAGameWidget {
 		if (!this.funcAllowWidgetRun()) { 
 			divNoData.innerText = "Must be logged in to use widget";
 		} else if (!this.blnLoadAttempted) {
-			divNoData.innerText =  "In order to prevent unecessary calls\nwidget must be manually loaded\n\n";
+			divNoData.innerText =  "In order to prevent unecessary calls\ngame data must be manually loaded\n\n";
             const divRefreshButton = document.createElement("div");
             divRefreshButton.className = "bbw-nbagamewidget-button"
             divRefreshButton.innerText ="Refresh Widget";
@@ -1093,6 +1094,44 @@ class NBAGameWidget {
 
 		//*** Return */
 		return divNoData;
+    }
+
+    //*** Render Game Grades Section */
+    funcRenderGameGrades() {
+        //*** Create Grades Button */
+        const divButton = document.createElement("div");
+        divButton.className = "bbw-nbagamewidget-button"
+        divButton.innerText ="Submit my Game Grades";
+        divButton.style.width = "100%";
+        divButton.style.fontSize = "1em";
+        divButton.style.filter = "drop-shadow(2px 2px 2px var(--bbw-color-grades-shadow))";
+        divButton.addEventListener('click', () => {
+            window.open('https://docs.google.com/forms/d/e/' + this.strGradesLink + '/viewform', '_blank');
+        });
+
+        //*** Game Grades Thread */
+        const linkGradesThread = document.createElement("a");
+        linkGradesThread.href = "https://baselinebums.com/threads/" + this.strGradesThread;
+        linkGradesThread.target = "_blank";
+        linkGradesThread.rel = "noopener noreferrer";
+        linkGradesThread.style.color = "var(--bbw-palette-mutedtext)";
+        linkGradesThread.style.textAlign = "right";
+        linkGradesThread.style.fontSize = "0.85em";
+        linkGradesThread.innerText = "View Game Grades Thread"
+
+        //*** Create Game Grades Element */
+        const divGrades = document.createElement("div");
+		divGrades.className = "bbw-nbagamewidget-grades";
+        divGrades.appendChild(divButton);
+
+        //*** Create Link outside of footer */
+        const divGradesContainer = document.createElement("div")
+        divGradesContainer.className = "bbw-nbagamewidget-gradescontainer"
+        divGradesContainer.appendChild(divGrades);
+        divGradesContainer.appendChild(linkGradesThread);
+
+        //*** Return Component */
+        return divGradesContainer
     }
 
     //*** Change the window size */
@@ -1932,9 +1971,11 @@ Main Hook to Replace Placeholder DIV tag
         const strStorageNamespace = divWidgetContainer.dataset.storageNamespace || "bbw-nbawidget";
         const blnDebugMode = divWidgetContainer.dataset.debugMode === "true" || false;
         const strPrimaryTeam = divWidgetContainer.dataset.primaryTeam || "";
+        const strGradesThread = divWidgetContainer.dataset.gradesThread || "";
+        const strGradesLink = divWidgetContainer.dataset.gradesLink || "";
 
         //*** Initialize widget with parameters from HTML
-        const objNBAGameWidget = new NBAGameWidget("bbw-nbagamewidget-container", strStorageNamespace, strAPISource, strAPIParameter, strPrimaryTeam, blnDebugMode);
+        const objNBAGameWidget = new NBAGameWidget("bbw-nbagamewidget-container", strStorageNamespace, strAPISource, strAPIParameter, strPrimaryTeam, strGradesThread, strGradesLink, blnDebugMode);
         (async () => {
             //await objNBAGameWidget.procLoadGameData();
             objNBAGameWidget.procRenderWidgetContainer();

@@ -86,7 +86,8 @@
 .bbw-nbagamewidget-header-container {
     color: var(--bbw-color-header-text);
     background: var(--bbw-color-header-bg);
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     justify-content: space-between;
     align-items: center;
     border-top-left-radius: 10px;
@@ -95,11 +96,15 @@
     min-height:36px;
 }
 
+.bbw-nbagamewidget-header-logo {
+    justify-self:center;
+}
+
 .bbw-nbagamewidget-header-buttongroup {
     cursor: pointer;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: right;
 	gap:10px;
 	margin-right:6px;
 }
@@ -360,7 +365,7 @@
 }
 
 /*******************************************************************/
-/* Injuries Tab */
+/* Broadcast Tab */
 /*******************************************************************/
 .bbw-nbagamewidget-broadcast {
     background: var(--bbw-color-broadcast-bg);
@@ -383,6 +388,26 @@
     border-style:solid;
     border-width:1px;
     border-radius:10px;
+}
+
+/*******************************************************************/
+/* Game Grades */
+/*******************************************************************/
+.bbw-nbagamewidget-gradescontainer {
+    display: flex;
+    flex-direction:column;
+    justify-content:right;
+}
+
+.bbw-nbagamewidget-grades {
+    /*background: var(--bbw-color-grades-bg);*/
+    display:flex;
+    align-items: center;
+    flex-direction:column;
+    margin-top:10px;
+	text-align: center;
+	padding:10px;
+    border-radius:10px
 }
 
 /*******************************************************************/
@@ -531,11 +556,13 @@
 	--bbw-palette-subcontent: hsl(0, 0%, 17%); 
 	--bbw-palette-mutedcontent: hsl(0, 0%, 10%); 
 	--bbw-palette-mainedges: hsl(0, 0%, 35%); 
-	--bbw-palette-shadow: hsl(0, 0%, 90%); 
+	--bbw-palette-shadow: hsl(0, 0%, 30%); 
 	--bbw-palette-text: hsl(0, 0%, 80%); 
 	--bbw-palette-mutedtext: hsl(0, 0%, 70%);
 	--bbw-palette-headertext: hsl(0, 0%, 100%); 
 	--bbw-palette-contrasttext: hsl(0, 0%, 10%);
+    --bbw-palette-attentionbox-background: hsl(0, 0%, 30%); 
+    --bbw-palette-attentionbox-shadow: hsl(0, 0%, 0%);
 	
 	/*** Custom Header for Dark Theme */
 	--bbw-color-header-bg: linear-gradient(0deg, rgb(26, 26, 26), rgb(38, 38, 38));
@@ -552,13 +579,15 @@
 	--bbw-palette-subcontent: hsl(0, 0%, 90%);   /* Use for a slightly lower attention content */
 	--bbw-palette-mutedcontent: hsl(0, 0%, 85%);   /* Farther background colors, etc */
 	--bbw-palette-mainedges: hsl(0, 0%, 70%);   /* most borders, slightly darker than far background ideally */
-	--bbw-palette-shadow: hsl(0, 0%, 30%); /* appropriate shadow color for background */
+	--bbw-palette-shadow: hsl(0, 0%, 70%); /* appropriate shadow color for background */
 	--bbw-palette-text: hsl(0, 0%, 0%); /* Default color for text */
 	--bbw-palette-mutedtext: hsl(0, 0%, 40%); /* Muted Color for text */
 	--bbw-palette-headertext: hsl(0, 0%, 20%); /* A more well defined text for headers */
 	--bbw-palette-contrasttext: hsl(0, 0%, 100%); /* Needed when text is on an opposite bg */
     --bbw-palette-live-bg: rgb(255, 0, 0);
 	--bbw-palette-live-text: hsl(0, 0%, 100%);
+    --bbw-palette-attentionbox-background: hsl(0, 0%, 75%);
+    --bbw-palette-attentionbox-shadow: hsl(0, 0%, 40%);
 
 	/*********************************************************/
 	/* Specific Component Colors - ONLY OVERRIDE IF NEEDED */
@@ -625,6 +654,10 @@
     /*** Team Stats Colors ***/
     --bbw-color-teamstats-bg: var(--bbw-palette-maincontent);
     --bbw-color-teamstats-border: var(--bbw-palette-mainedges);
+
+    /*** Game Grade Colors ***/
+    --bbw-color-grades-bg: var(--bbw-palette-attentionbox-background);
+    --bbw-color-grades-shadow: var(--bbw-palette-attentionbox-shadow);
 
     /*** Table Styles ***/
     --bbw-color-stickytable-title-bg: var(--bbw-palette-subcontent);
