@@ -394,25 +394,25 @@ class NBAGameWidget {
                     const objStats = arrPlayerStats[j].stats
                     if (objStats && objStats.length > 0) {
                         objPlayerStats.intMinutes = parseInt(objStats[0]) || 0;;
-                        objPlayerStats.intPoints = parseInt(objStats[13]);
-                        const arrFGStats = objStats[1].split("-");
+                        objPlayerStats.intPoints = parseInt(objStats[1]);
+                        const arrFGStats = objStats[9].split("-");
                         objPlayerStats.intFGM = parseInt(arrFGStats[0]);
                         objPlayerStats.intFGA = parseInt(arrFGStats[1]);
-                        const arr3PStats = objStats[2].split("-");
+                        const arr3PStats = objStats[11].split("-");
                         objPlayerStats.int3PM = parseInt(arr3PStats[0]);
                         objPlayerStats.int3PA = parseInt(arr3PStats[1]);
-                        const arrFTStats = objStats[3].split("-");
+                        const arrFTStats = objStats[13].split("-");
                         objPlayerStats.intFTM = parseInt(arrFTStats[0]);
                         objPlayerStats.intFTA = parseInt(arrFTStats[1]);
-                        objPlayerStats.intREB = parseInt(objStats[6]);
-                        objPlayerStats.intOREB = parseInt(objStats[4]);
-                        objPlayerStats.intDREB = parseInt(objStats[5]);
-                        objPlayerStats.intAST = parseInt(objStats[7]);
-                        objPlayerStats.intSTL = parseInt(objStats[8]);
-                        objPlayerStats.intBLK = parseInt(objStats[9]);
-                        objPlayerStats.intTO = parseInt(objStats[10]);
-                        objPlayerStats.intPF = parseInt(objStats[11]);
-                        objPlayerStats.intPlusMinus = parseInt(objStats[12]);
+                        objPlayerStats.intREB = parseInt(objStats[4]);
+                        objPlayerStats.intOREB = parseInt(objStats[2]);
+                        objPlayerStats.intDREB = parseInt(objStats[3]);
+                        objPlayerStats.intAST = parseInt(objStats[5]);
+                        objPlayerStats.intSTL = parseInt(objStats[6]);
+                        objPlayerStats.intBLK = parseInt(objStats[7]);
+                        objPlayerStats.intTO = parseInt(objStats[8]);
+                        objPlayerStats.intPF = parseInt(objStats[15]);
+                        objPlayerStats.intPlusMinus = parseInt(objStats[16]);
                     }
 
                     //*** Determine where to push this player stat into */
