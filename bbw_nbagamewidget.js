@@ -572,7 +572,7 @@ class NBAGameWidget {
         }
 
         //*** Add game grades link
-        divNBAGameWidget.appendChild(this.funcRenderGameGrades());
+        //divNBAGameWidget.appendChild(this.funcRenderGameGrades());
 
         //*** Set Default Window Size */
         this.procChangeWindowSize();
